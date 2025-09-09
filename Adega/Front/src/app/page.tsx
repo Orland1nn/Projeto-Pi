@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { useState, FormEvent } from "react";
@@ -10,6 +9,12 @@ interface FormData {
   senha: string;
 }
 
+interface ApiResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
 export default function HomePage() {
   const [formData, setFormData] = useState<FormData>({
     nome: "",
@@ -17,7 +22,9 @@ export default function HomePage() {
     senha: ""
   });
 
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -25,15 +32,57 @@ export default function HomePage() {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const registerUser = async (userData: FormData): Promise<ApiResponse> => {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao registrar usuário');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      throw error;
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Dados do usuário:", formData);
-    
-    // Aqui você pode adicionar a lógica para enviar os dados
-    alert(`Usuário cadastrado: ${formData.nome}`);
-    
-    // Limpar formulário após envio
-    setFormData({ nome: "", email: "", senha: "" });
+    setIsLoading(true);
+
+    try {
+      console.log("Enviando dados do usuário:", formData);
+      
+      const result = await registerUser(formData);
+      
+      console.log("Resposta da API:", result);
+      alert(`Usuário cadastrado com sucesso: ${formData.nome}`);
+      
+      // Limpar formulário após sucesso
+      setFormData({ nome: "", email: "", senha: "" });
+      
+      // Opcional: redirecionar para página de login
+      // router.push("/login");
+      
+    } catch (error: any) {
+      console.error("Erro ao cadastrar usuário:", error);
+      alert(`Erro ao cadastrar usuário: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = () => {
+    router.push("/Login");
   };
 
   const handleReset = () => {
@@ -85,7 +134,7 @@ export default function HomePage() {
               onChange={(e) => handleInputChange("nome", e.target.value)}
               placeholder="Digite seu nome completo"
               required
-              className="text-black"
+              disabled={isLoading}
               style={{
                 color: "black",
                 width: "100%",
@@ -94,7 +143,9 @@ export default function HomePage() {
                 borderRadius: "6px",
                 fontSize: "1rem",
                 outline: "none",
-                transition: "border-color 0.2s"
+                transition: "border-color 0.2s",
+                backgroundColor: isLoading ? "#f3f4f6" : "white",
+                cursor: isLoading ? "not-allowed" : "text"
               }}
               onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
               onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
@@ -117,6 +168,7 @@ export default function HomePage() {
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="seu@email.com"
               required
+              disabled={isLoading}
               style={{
                 color: "black",
                 width: "100%",
@@ -125,7 +177,9 @@ export default function HomePage() {
                 borderRadius: "6px",
                 fontSize: "1rem",
                 outline: "none",
-                transition: "border-color 0.2s"
+                transition: "border-color 0.2s",
+                backgroundColor: isLoading ? "#f3f4f6" : "white",
+                cursor: isLoading ? "not-allowed" : "text"
               }}
               onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
               onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
@@ -149,6 +203,7 @@ export default function HomePage() {
               placeholder="Mínimo 6 caracteres"
               required
               minLength={6}
+              disabled={isLoading}
               style={{
                 color: "black",
                 width: "100%",
@@ -157,7 +212,9 @@ export default function HomePage() {
                 borderRadius: "6px",
                 fontSize: "1rem",
                 outline: "none",
-                transition: "border-color 0.2s"
+                transition: "border-color 0.2s",
+                backgroundColor: isLoading ? "#f3f4f6" : "white",
+                cursor: isLoading ? "not-allowed" : "text"
               }}
               onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
               onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
@@ -166,48 +223,57 @@ export default function HomePage() {
 
           <button
             type="submit"
+            disabled={isLoading}
             style={{
               width: "100%",
               padding: "0.75rem",
-              backgroundColor: "#3b82f6",
+              backgroundColor: isLoading ? "#9ca3af" : "#22c55e",
               color: "white",
               border: "none",
               borderRadius: "6px",
               fontSize: "1rem",
               fontWeight: "600",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
               marginTop: "1rem",
-              transition: "background-color 0.2s"
+              transition: "background-color 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem"
             }}
-            /*</form>onMouseEnter={(e) => e.target.style.backgroundColor = "#2563eb"}
-            onMouseLeave={(e) => e.target.style.backgroundColor = "#3b82f6"}*/
           >
-            Criar Conta
+            {isLoading ? (
+              <>
+                <div style={{
+                  width: "16px",
+                  height: "16px",
+                  border: "2px solid #ffffff40",
+                  borderTop: "2px solid #ffffff",
+                  borderRadius: "50%",
+                  animation: "spin 1s linear infinite"
+                }} />
+                Cadastrando...
+              </>
+            ) : (
+              "Criar Conta"
+            )}
           </button>
 
           <button
             type="button"
             onClick={handleReset}
-            className="hover:bg-red-300"
+            disabled={isLoading}
             style={{
               width: "100%",
               padding: "0.75rem",
               backgroundColor: "transparent",
-              color: "#6b7280",
+              color: isLoading ? "#9ca3af" : "#6b7280",
               border: "1px solid #d1d5db",
               borderRadius: "6px",
               fontSize: "1rem",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
               transition: "all 0.2s"
             }}
-            /*onMouseEnter={(e) => {
-              e.target.style.backgroundColor = "#f9fafb";
-              e.target.style.borderColor = "#9ca3af";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = "transparent";
-              e.target.style.borderColor = "#d1d5db";
-            }}*/
           >
             Limpar Formulário
           </button>
@@ -221,13 +287,14 @@ export default function HomePage() {
         }}>
           Já tem uma conta?{" "}
           <button
-            onClick={() => console.log("Navegar para login")}
+            onClick={handleLogin}
+            disabled={isLoading}
             style={{
-              color: "#3b82f6",
+              color: isLoading ? "#9ca3af" : "#22c55e",
               textDecoration: "underline",
               background: "none",
               border: "none",
-              cursor: "pointer",
+              cursor: isLoading ? "not-allowed" : "pointer",
               fontSize: "0.875rem"
             }}
           >
@@ -235,6 +302,13 @@ export default function HomePage() {
           </button>
         </p>
       </div>
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
