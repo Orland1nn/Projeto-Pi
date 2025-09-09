@@ -1,314 +1,103 @@
-"use client";
+import Image from "next/image";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
-
-interface FormData {
-  nome: string;
-  email: string;
-  senha: string;
-}
-
-interface ApiResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
-
-export default function HomePage() {
-  const [formData, setFormData] = useState<FormData>({
-    nome: "",
-    email: "",
-    senha: ""
-  });
-
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const registerUser = async (userData: FormData): Promise<ApiResponse> => {
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Erro ao registrar usuário');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Erro na requisição:', error);
-      throw error;
-    }
-  };
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      console.log("Enviando dados do usuário:", formData);
-      
-      const result = await registerUser(formData);
-      
-      console.log("Resposta da API:", result);
-      alert(`Usuário cadastrado com sucesso: ${formData.nome}`);
-      
-      // Limpar formulário após sucesso
-      setFormData({ nome: "", email: "", senha: "" });
-      
-      // Opcional: redirecionar para página de login
-      // router.push("/login");
-      
-    } catch (error: any) {
-      console.error("Erro ao cadastrar usuário:", error);
-      alert(`Erro ao cadastrar usuário: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogin = () => {
-    router.push("/Login");
-  };
-
-  const handleReset = () => {
-    setFormData({ nome: "", email: "", senha: "" });
-    console.log("Formulário limpo");
-  };
-
+export default function Home() {
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: "#f8fafc",
-      padding: "1rem"
-    }}>
-      <div style={{
-        width: "100%",
-        maxWidth: "400px",
-        backgroundColor: "white",
-        borderRadius: "8px",
-        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        padding: "2rem"
-      }}>
-        <h1 style={{
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          textAlign: "center",
-          marginBottom: "2rem",
-          color: "#1f2937"
-        }}>
-          Criar Conta
-        </h1>
+    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={180}
+          height={38}
+          priority
+        />
+        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
+          <li className="mb-2 tracking-[-.01em]">
+            Get started by editing{" "}
+            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
+              src/app/page.tsx
+            </code>
+            .
+          </li>
+          <li className="tracking-[-.01em]">
+            Save and see your changes instantly.
+          </li>
+        </ol>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div>
-            <label style={{
-              display: "block",
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "#374151",
-              marginBottom: "0.5rem"
-            }}>
-              Nome completo
-            </label>
-            <input
-              type="text"
-              value={formData.nome}
-              onChange={(e) => handleInputChange("nome", e.target.value)}
-              placeholder="Digite seu nome completo"
-              required
-              disabled={isLoading}
-              style={{
-                color: "black",
-                width: "100%",
-                padding: "0.75rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "1rem",
-                outline: "none",
-                transition: "border-color 0.2s",
-                backgroundColor: isLoading ? "#f3f4f6" : "white",
-                cursor: isLoading ? "not-allowed" : "text"
-              }}
-              onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-              onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
-            />
-          </div>
-
-          <div>
-            <label style={{
-              display: "block",
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "#374151",
-              marginBottom: "0.5rem"
-            }}>
-              E-mail
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="seu@email.com"
-              required
-              disabled={isLoading}
-              style={{
-                color: "black",
-                width: "100%",
-                padding: "0.75rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "1rem",
-                outline: "none",
-                transition: "border-color 0.2s",
-                backgroundColor: isLoading ? "#f3f4f6" : "white",
-                cursor: isLoading ? "not-allowed" : "text"
-              }}
-              onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-              onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
-            />
-          </div>
-
-          <div>
-            <label style={{
-              display: "block",
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "#374151",
-              marginBottom: "0.5rem"
-            }}>
-              Senha
-            </label>
-            <input
-              type="password"
-              value={formData.senha}
-              onChange={(e) => handleInputChange("senha", e.target.value)}
-              placeholder="Mínimo 6 caracteres"
-              required
-              minLength={6}
-              disabled={isLoading}
-              style={{
-                color: "black",
-                width: "100%",
-                padding: "0.75rem",
-                border: "1px solid #d1d5db",
-                borderRadius: "6px",
-                fontSize: "1rem",
-                outline: "none",
-                transition: "border-color 0.2s",
-                backgroundColor: isLoading ? "#f3f4f6" : "white",
-                cursor: isLoading ? "not-allowed" : "text"
-              }}
-              onFocus={(e) => e.target.style.borderColor = "#3b82f6"}
-              onBlur={(e) => e.target.style.borderColor = "#d1d5db"}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              backgroundColor: isLoading ? "#9ca3af" : "#22c55e",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              fontSize: "1rem",
-              fontWeight: "600",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              marginTop: "1rem",
-              transition: "background-color 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem"
-            }}
+        <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <a
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {isLoading ? (
-              <>
-                <div style={{
-                  width: "16px",
-                  height: "16px",
-                  border: "2px solid #ffffff40",
-                  borderTop: "2px solid #ffffff",
-                  borderRadius: "50%",
-                  animation: "spin 1s linear infinite"
-                }} />
-                Cadastrando...
-              </>
-            ) : (
-              "Criar Conta"
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={isLoading}
-            style={{
-              width: "100%",
-              padding: "0.75rem",
-              backgroundColor: "transparent",
-              color: isLoading ? "#9ca3af" : "#6b7280",
-              border: "1px solid #d1d5db",
-              borderRadius: "6px",
-              fontSize: "1rem",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              transition: "all 0.2s"
-            }}
+            <Image
+              className="dark:invert"
+              src="/vercel.svg"
+              alt="Vercel logomark"
+              width={20}
+              height={20}
+            />
+            Deploy now
+          </a>
+          <a
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
+            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Limpar Formulário
-          </button>
-        </form>
-
-        <p style={{
-          textAlign: "center",
-          marginTop: "1.5rem",
-          fontSize: "0.875rem",
-          color: "#6b7280"
-        }}>
-          Já tem uma conta?{" "}
-          <button
-            onClick={handleLogin}
-            disabled={isLoading}
-            style={{
-              color: isLoading ? "#9ca3af" : "#22c55e",
-              textDecoration: "underline",
-              background: "none",
-              border: "none",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              fontSize: "0.875rem"
-            }}
-          >
-            Fazer login
-          </button>
-        </p>
-      </div>
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+            Read our docs
+          </a>
+        </div>
+      </main>
+      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/file.svg"
+            alt="File icon"
+            width={16}
+            height={16}
+          />
+          Learn
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Examples
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/globe.svg"
+            alt="Globe icon"
+            width={16}
+            height={16}
+          />
+          Go to nextjs.org →
+        </a>
+      </footer>
     </div>
   );
 }
