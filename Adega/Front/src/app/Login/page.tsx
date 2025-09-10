@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   const handleCadastrar = () => {
-    router.push("/Cadastro");
+    router.push("/");
   };
 
   return (
