@@ -34,7 +34,7 @@ export default function HomePage() {
 
   const registerUser = async (userData: FormData): Promise<ApiResponse> => {
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch("http://localhost:3000/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,6 @@ export default function HomePage() {
       router.push("/Login");
     } catch (error: unknown) {
       console.error("Erro ao cadastrar usuário:", error);
-      alert(`Erro ao cadastrar usuário: ${error}`);
     } finally {
       setIsLoading(false);
     }
