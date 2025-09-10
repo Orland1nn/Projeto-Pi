@@ -71,7 +71,7 @@ export default function HomePage() {
       setFormData({ nome: "", email: "", senha: "" });
 
       // Opcional: redirecionar para página de login
-      // router.push("/login");
+      router.push("/Login");
     } catch (error: unknown) {
       console.error("Erro ao cadastrar usuário:", error);
       alert(`Erro ao cadastrar usuário: ${error}`);
