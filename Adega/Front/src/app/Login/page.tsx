@@ -19,7 +19,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   const handleCadastrar = () => {
-    router.push("/");
+    router.push("/cadastro");
   };
 
   return (
