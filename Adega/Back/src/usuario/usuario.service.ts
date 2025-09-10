@@ -20,7 +20,8 @@ export class UsersService {
     if (userExists) {
       throw new BadRequestException('E-mail já está em uso');
     }
-
+    
+    console.log('Senha recebida:', password);
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = this.usersRepository.create({
