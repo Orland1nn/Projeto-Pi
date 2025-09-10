@@ -65,8 +65,8 @@ export default function HomePage() {
       const result = await registerUser(formData);
 
       console.log("Resposta da API:", result);
-      alert(`Usuário cadastrado com sucesso: ${formData.nome}`);
-
+      
+      
       // Limpar formulário após sucesso
       setFormData({ nome: "", email: "", senha: "" });
 
