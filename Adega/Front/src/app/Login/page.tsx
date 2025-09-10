@@ -106,7 +106,9 @@ export default function Login() {
           </div>
         </form>
 
-        {erro && <h3 className="text-red-600 font-bold mt-3">{erro}</h3>}
+        {erro && (
+          <h3 className="text-red-600 font-bold mt-3 text-blac">{erro}</h3>
+        )}
       </main>
     </div>
   );
