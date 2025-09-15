@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './usuario.entity';
@@ -31,5 +31,26 @@ export class UsersService {
     });
 
     return this.usersRepository.save(user);
+  }
+
+   async validateUser(createUserDto: CreateUserDto ): Promise<any> {
+    const { email, senha } = createUserDto;
+
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    const senhaCorreta = await bcrypt.compare(senha, user.senha);
+    if (!senhaCorreta) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+
+    return {
+      message: 'Login realizado com sucesso!',
+      userId: user.id,
+      email: user.email,
+      nome: user.nome
+    };
   }
 }
