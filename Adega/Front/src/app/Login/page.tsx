@@ -30,7 +30,7 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        router.push("/Interface");
+        router.push("/InterfacePrincipal");
       } else {
         setErro(data.message || "Credenciais inválidas!");
       }
