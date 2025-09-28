@@ -65,13 +65,10 @@ export default function HomePage() {
       const result = await registerUser(formData);
 
       console.log("Resposta da API:", result);
-      
-      
-      // Limpar formulário após sucesso
+
       setFormData({ nome: "", email: "", senha: "" });
 
-      // Opcional: redirecionar para página de login
-      router.push("/Login");
+      router.push("/InterfacePrincipal");
     } catch (error: unknown) {
       console.error("Erro ao cadastrar usuário:", error);
     } finally {

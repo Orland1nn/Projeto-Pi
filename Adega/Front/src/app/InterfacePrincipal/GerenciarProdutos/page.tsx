@@ -25,6 +25,34 @@ export default function GerenciarProdutos() {
     limparCampos();
   }
 
+  // Função para capitalizar cada palavra
+  function capitalizeWords(texto: string) {
+    return texto.toLowerCase().replace(/\b\w/g, (letra) => letra.toUpperCase());
+  }
+
+  function handleNomeChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setNome(capitalizeWords(e.target.value));
+  }
+
+  function handleTipoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setTipo(capitalizeWords(e.target.value));
+  }
+
+  // Formatar preço automaticamente
+  function handlePrecoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const valor = e.target.value.replace(/\D/g, ""); // só números
+    if (valor) {
+      const numero = parseFloat(valor) / 100;
+      const formatado = numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
+      setPreco(formatado);
+    } else {
+      setPreco("");
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -33,18 +61,33 @@ export default function GerenciarProdutos() {
         await fetch("http://localhost:3000/products", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nome, preco: parseFloat(preco), tipo }),
+          body: JSON.stringify({
+            nome,
+            preco: Number(preco.replace(/\D/g, "")) / 100,
+            tipo,
+          }),
         });
       } else if (modo === "atualizar") {
-        await fetch(`http://localhost:3000/products/atualizar/${encodeURIComponent(nome)}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ preco: parseFloat(preco), tipo }),
-        });
+        await fetch(
+          `http://localhost:3000/products/atualizar/${encodeURIComponent(
+            nome
+          )}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              preco: Number(preco.replace(/\D/g, "")) / 100,
+              tipo,
+            }),
+          }
+        );
       } else if (modo === "remover") {
-        await fetch(`http://localhost:3000/produtos/remover/${encodeURIComponent(nome)}`, {
-          method: "DELETE",
-        });
+        await fetch(
+          `http://localhost:3000/produtos/remover/${encodeURIComponent(nome)}`,
+          {
+            method: "DELETE",
+          }
+        );
       }
     } catch (error) {
       console.error("Erro na requisição:", error);
@@ -59,14 +102,19 @@ export default function GerenciarProdutos() {
       <header className="w-full bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
+            <div
+              className="flex items-center gap-8 cursor-pointer"
+              onClick={() => router.push("/InterfacePrincipal")}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-rose-700 rounded-lg flex items-center justify-center">
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold text-gray-900">StockFlow</h1>
-                  <p className="text-xs text-gray-500 -mt-1">Gestão de Estoque</p>
+                  <p className="text-xs text-gray-500 -mt-1">
+                    Gestão de Estoque
+                  </p>
                 </div>
               </div>
             </div>
@@ -74,13 +122,15 @@ export default function GerenciarProdutos() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/InterfacePrincipal/Produtos")}
-                className="px-4 py-1.5 text-rose-600 text-sm rounded-md hover:bg-rose-200 transition-colors"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-200 transition-colors cursor-pointer font-bold"
               >
                 Produtos
               </button>
               <button
-                onClick={() => router.push("/InterfacePrincipal/GerenciarProdutos")}
-                className="px-4 py-1.5 text-rose-600 text-sm rounded-md hover:bg-rose-200 transition-colors"
+                onClick={() =>
+                  router.push("/InterfacePrincipal/GerenciarProdutos")
+                }
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-200 transition-colors cursor-pointer font-bold"
               >
                 Gerenciar
               </button>
@@ -93,13 +143,13 @@ export default function GerenciarProdutos() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors"
+                  className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
                   onClick={() => router.push("/Login")}
                 >
                   Entrar
                 </button>
                 <button
-                  className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors"
+                  className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
                   onClick={() => router.push("/")}
                 >
                   Cadastrar
@@ -121,30 +171,36 @@ export default function GerenciarProdutos() {
             <button
               type="button"
               onClick={() => trocarModo("adicionar")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${modo === "adicionar"
-                  ? "bg-rose-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
+                ${
+                  modo === "adicionar"
+                    ? "bg-rose-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
             >
               Adicionar
             </button>
             <button
               type="button"
               onClick={() => trocarModo("atualizar")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${modo === "atualizar"
-                  ? "bg-rose-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
+                ${
+                  modo === "atualizar"
+                    ? "bg-rose-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
             >
               Atualizar
             </button>
             <button
               type="button"
               onClick={() => trocarModo("remover")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors
-                ${modo === "remover"
-                  ? "bg-rose-600 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
+                ${
+                  modo === "remover"
+                    ? "bg-rose-600 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
             >
               Remover
             </button>
@@ -162,7 +218,7 @@ export default function GerenciarProdutos() {
             <input
               type="text"
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={handleNomeChange}
               className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
               required
             />
@@ -171,12 +227,13 @@ export default function GerenciarProdutos() {
           {modo !== "remover" && (
             <>
               <label className="block mb-3">
-                <span className="text-gray-700 text-sm">Preço (R$)</span>
+                <span className="text-gray-700 text-sm">Preço</span>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="numeric"
                   value={preco}
-                  onChange={(e) => setPreco(e.target.value)}
+                  onChange={handlePrecoChange}
+                  placeholder="R$ 0,00"
                   className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
                   required
                 />
@@ -187,7 +244,7 @@ export default function GerenciarProdutos() {
                 <input
                   type="text"
                   value={tipo}
-                  onChange={(e) => setTipo(e.target.value)}
+                  onChange={handleTipoChange}
                   className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
                   required
                 />
@@ -197,7 +254,7 @@ export default function GerenciarProdutos() {
 
           <button
             type="submit"
-            className="w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition-colors"
+            className="w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
           >
             {modo === "adicionar" && "Salvar"}
             {modo === "atualizar" && "Atualizar"}
