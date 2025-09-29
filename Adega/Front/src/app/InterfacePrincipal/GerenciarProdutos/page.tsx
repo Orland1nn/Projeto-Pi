@@ -12,22 +12,30 @@ export default function GerenciarProdutos() {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [tipo, setTipo] = useState("");
+  const [imagem, setImagem] = useState("");
   const [modo, setModo] = useState<Modo>("adicionar");
+  const [mensagem, setMensagem] = useState("");
 
   function limparCampos() {
     setNome("");
     setPreco("");
     setTipo("");
+    setImagem("");
   }
 
   function trocarModo(novo: Modo) {
     setModo(novo);
     limparCampos();
+    setMensagem("");
   }
 
-  // Função para capitalizar cada palavra
+  // Capitaliza palavras mantendo acentos corretamente
   function capitalizeWords(texto: string) {
-    return texto.toLowerCase().replace(/\b\w/g, (letra) => letra.toUpperCase());
+    return texto.replace(/\p{L}+/gu, (palavra) => {
+      const primeira = palavra[0].toUpperCase();
+      const resto = palavra.slice(1).toLowerCase();
+      return primeira + resto;
+    });
   }
 
   function handleNomeChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -38,14 +46,14 @@ export default function GerenciarProdutos() {
     setTipo(capitalizeWords(e.target.value));
   }
 
-  // Formatar preço automaticamente
+  // Formatar preço automaticamente (mantendo duas casas decimais)
   function handlePrecoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const valor = e.target.value.replace(/\D/g, ""); // só números
-    if (valor) {
-      const numero = parseFloat(valor) / 100;
+    const valorApenasNumeros = e.target.value.replace(/\D/g, ""); // só números
+    if (valorApenasNumeros) {
+      const numero = parseFloat(valorApenasNumeros) / 100;
       const formatado = numero.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
       });
       setPreco(formatado);
     } else {
@@ -57,18 +65,26 @@ export default function GerenciarProdutos() {
     e.preventDefault();
 
     try {
+      if (!preco) throw new Error("Preço inválido");
+
+      const precoNumerico = preco.replace(/\./g, "").replace(",", ".");
+      const precoFinal = parseFloat(precoNumerico).toFixed(2);
+
+      let resposta: Response;
+
       if (modo === "adicionar") {
-        await fetch("http://localhost:3000/products", {
+        resposta = await fetch("http://localhost:3000/products", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             nome,
-            preco: Number(preco.replace(/\D/g, "")) / 100,
+            preco: precoFinal,
             tipo,
+            imagem,
           }),
         });
       } else if (modo === "atualizar") {
-        await fetch(
+        resposta = await fetch(
           `http://localhost:3000/products/atualizar/${encodeURIComponent(
             nome
           )}`,
@@ -76,23 +92,26 @@ export default function GerenciarProdutos() {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              preco: Number(preco.replace(/\D/g, "")) / 100,
+              preco: precoFinal,
               tipo,
+              imagem,
             }),
           }
         );
-      } else if (modo === "remover") {
-        await fetch(
+      } else {
+        resposta = await fetch(
           `http://localhost:3000/produtos/remover/${encodeURIComponent(nome)}`,
-          {
-            method: "DELETE",
-          }
+          { method: "DELETE" }
         );
       }
+
+      if (!resposta.ok) throw new Error("Falha na requisição");
+
+      setMensagem("Operação concluída!");
+      limparCampos();
     } catch (error) {
       console.error("Erro na requisição:", error);
-    } finally {
-      limparCampos();
+      setMensagem("Erro na requisição!");
     }
   }
 
@@ -171,36 +190,33 @@ export default function GerenciarProdutos() {
             <button
               type="button"
               onClick={() => trocarModo("adicionar")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
-                ${
-                  modo === "adicionar"
-                    ? "bg-rose-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                modo === "adicionar"
+                  ? "bg-rose-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
             >
               Adicionar
             </button>
             <button
               type="button"
               onClick={() => trocarModo("atualizar")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
-                ${
-                  modo === "atualizar"
-                    ? "bg-rose-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                modo === "atualizar"
+                  ? "bg-rose-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
             >
               Atualizar
             </button>
             <button
               type="button"
               onClick={() => trocarModo("remover")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer
-                ${
-                  modo === "remover"
-                    ? "bg-rose-600 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                modo === "remover"
+                  ? "bg-rose-600 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
             >
               Remover
             </button>
@@ -239,12 +255,26 @@ export default function GerenciarProdutos() {
                 />
               </label>
 
-              <label className="block mb-4">
+              <label className="block mb-3">
                 <span className="text-gray-700 text-sm">Tipo de Produto</span>
                 <input
                   type="text"
                   value={tipo}
                   onChange={handleTipoChange}
+                  className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
+                  required
+                />
+              </label>
+
+              <label className="block mb-4">
+                <span className="text-gray-700 text-sm">
+                  Imagem (diretório)
+                </span>
+                <input
+                  type="text"
+                  value={imagem}
+                  onChange={(e) => setImagem(e.target.value)}
+                  placeholder="/imagens/produto.jpg"
                   className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
                   required
                 />
@@ -260,6 +290,11 @@ export default function GerenciarProdutos() {
             {modo === "atualizar" && "Atualizar"}
             {modo === "remover" && "Remover"}
           </button>
+          <div className="flex flex-col items-center mt-5">
+            {mensagem && (
+              <p className="text-bold text-shadow-md text-black">{mensagem}</p>
+            )}
+          </div>
         </form>
       </div>
     </div>

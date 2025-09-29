@@ -15,4 +15,8 @@ export class ProdutoService {
     const produto = this.produtoRepository.create(createProdutoDto);
     return await this.produtoRepository.save(produto);
   }
+
+  async listar(): Promise<Produto[]> {
+    return await this.produtoRepository.find();
+  }
 }

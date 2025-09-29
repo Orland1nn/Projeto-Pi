@@ -11,7 +11,8 @@ import { ProdutoModule } from './produto/produto.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-    UsersModule,ProdutoModule,
+    UsersModule,
+    ProdutoModule,
   ],
 })
 export class AppModule {}

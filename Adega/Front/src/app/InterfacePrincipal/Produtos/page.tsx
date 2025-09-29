@@ -16,18 +16,19 @@ export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const router = useRouter();
 
-  // Produtos fixos que sempre aparecem primeiro
-  const produtosFixos: Produto[] = [
-    { id: 0, nome: "Vinho", preco: "R$ 69,90", imagem: "/Vinho.jpg" },
-    { id: 1, nome: "Carvão", preco: "R$ 29,90", imagem: "/Carvao.jpg" },
-  ];
-
   useEffect(() => {
     const fetchProdutos = async () => {
       try {
         const res = await fetch("http://localhost:3000/products/listar");
         const data = await res.json();
-        setProdutos(data); // API deve retornar um array de produtos
+
+        // garante que todas as imagens tenham "/" na frente
+        const produtosComImagem = data.map((p: Produto) => ({
+          ...p,
+          imagem: p.imagem.startsWith("/") ? p.imagem : `/${p.imagem}`,
+        }));
+
+        setProdutos(produtosComImagem);
       } catch (error) {
         console.error("Erro ao carregar produtos:", error);
       }
@@ -107,30 +108,6 @@ export default function Produtos() {
         </h1>
 
         <main className="bg-white w-full flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 p-6 pt-2 overflow-auto">
-          {/* Produtos fixos */}
-          {produtosFixos.map((produto) => (
-            <div
-              key={produto.id}
-              className="bg-white border border-gray-200 rounded-3xl shadow-md flex flex-col items-center p-4 hover:scale-105 hover:shadow-xl transition-transform transition-shadow h-60 max-h-60"
-            >
-              <div className="w-32 h-32 rounded-xl overflow-hidden mt-3">
-                <Image
-                  src={produto.imagem}
-                  alt={produto.nome}
-                  width={128}
-                  height={128}
-                  className="object-contain"
-                />
-              </div>
-              <h2 className="mt-3 text-lg font-semibold text-gray-800 text-center tracking-wide">
-                {produto.nome}
-              </h2>
-              <p className="mt-2 text-rose-900 font-bold bg-rose-100 px-3 py-1 rounded-full">
-                {produto.preco}
-              </p>
-            </div>
-          ))}
-
           {/* Produtos carregados da API */}
           {produtos.length === 0 ? (
             <p className="text-gray-500">Carregando produtos...</p>
@@ -146,7 +123,7 @@ export default function Produtos() {
                     alt={produto.nome}
                     width={128}
                     height={128}
-                    className="object-contain"
+                    className="object-contain w-full h-full"
                   />
                 </div>
                 <h2 className="mt-3 text-lg font-semibold text-gray-800 text-center tracking-wide">
