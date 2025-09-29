@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param } from '@nestjs/common';
 import { ProdutoService } from './produto.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Produto } from './produto.entity';
@@ -16,4 +16,13 @@ export class ProdutoController {
   async listar(): Promise<Produto[]> {
     return this.produtoService.listar();
   }
+
+  @Put('atualizar/:nome')
+async atualizar(
+  @Param('nome') nome: string,
+  @Body() dados: Partial<CreateProdutoDto>,
+): Promise<Produto> {
+  return this.produtoService.atualizarPorNome(nome, dados);
+}
+
 }
