@@ -65,42 +65,45 @@ export default function GerenciarProdutos() {
     e.preventDefault();
 
     try {
-      if (!preco) throw new Error("Preço inválido");
-
-      const precoNumerico = preco.replace(/\./g, "").replace(",", ".");
-      const precoFinal = parseFloat(precoNumerico).toFixed(2);
-
       let resposta: Response;
 
-      if (modo === "adicionar") {
-        resposta = await fetch("http://localhost:3000/products", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nome,
-            preco: precoFinal,
-            tipo,
-            imagem,
-          }),
-        });
-      } else if (modo === "atualizar") {
-        resposta = await fetch(
-          `http://localhost:3000/products/atualizar/${encodeURIComponent(
-            nome
-          )}`,
-          {
-            method: "PUT",
+      if (modo === "adicionar" || modo === "atualizar") {
+        if (!preco) throw new Error("Preço inválido");
+
+        const precoNumerico = preco.replace(/\./g, "").replace(",", ".");
+        const precoFinal = parseFloat(precoNumerico).toFixed(2);
+
+        if (modo === "adicionar") {
+          resposta = await fetch("http://localhost:3000/products", {
+            method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              nome,
               preco: precoFinal,
               tipo,
               imagem,
             }),
-          }
-        );
+          });
+        } else {
+          resposta = await fetch(
+            `http://localhost:3000/products/atualizar/${encodeURIComponent(
+              nome
+            )}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                preco: precoFinal,
+                tipo,
+                imagem,
+              }),
+            }
+          );
+        }
       } else {
+        // modo === "remover"
         resposta = await fetch(
-          `http://localhost:3000/produtos/remover/${encodeURIComponent(nome)}`,
+          `http://localhost:3000/products/remover/${encodeURIComponent(nome)}`,
           { method: "DELETE" }
         );
       }
