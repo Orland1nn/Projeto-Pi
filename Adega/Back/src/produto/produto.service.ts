@@ -35,4 +35,12 @@ export class ProdutoService {
     Object.assign(produto, dados);
     return this.produtoRepository.save(produto);
   }
+
+  async removerPorNome(nome: string): Promise<void> {
+  const produto = await this.produtoRepository.findOne({ where: { nome } });
+  if (!produto) {
+    throw new NotFoundException('Produto não encontrado');
+  }
+  await this.produtoRepository.remove(produto);
+  }
 }
