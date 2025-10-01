@@ -1,0 +1,29 @@
+services:
+  frontend:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile.dev   # usa versão dev
+    container_name: next-frontend
+    ports:
+      - "3001:3001"
+#    volumes:
+#      - ./frontend:/usr/src/app
+#      - /usr/src/app/node_modules
+    command: npm run dev
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./Back
+      dockerfile: Dockerfile.dev   # usa versão dev
+    container_name: nest-backend
+    ports:
+      - "3000:3000"
+#    volumes:
+#      - ./backend:/usr/src/app
+#      - /usr/src/app/node_modules
+#      - ./backend/sqlite-data:/usr/src/app/sqlite-data   # persistência do SQLite
+    command: npm run start:dev
+
+volumes: {}
