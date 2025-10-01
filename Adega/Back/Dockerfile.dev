@@ -14,6 +14,7 @@ COPY . .
 COPY database.sqlite ./database.sqlite
 
 EXPOSE 3000
+ENV PORT=3000
 
 # inicia em modo dev com hot reload
 CMD ["npm", "run", "start:dev"]

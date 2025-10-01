@@ -9,7 +9,7 @@ services:
 #    volumes:
 #      - ./frontend:/usr/src/app
 #      - /usr/src/app/node_modules
-    command: npm run dev
+    command: npm run dev -- -p 3001   
     depends_on:
       - backend
 
