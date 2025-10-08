@@ -20,14 +20,11 @@ export class ProdutoService {
     return await this.produtoRepository.find();
   }
 
-  async atualizarPorNome(
-    nome: string,
+  async atualizarPorId(
+    id: number,
     dados: Partial<CreateProdutoDto>,
   ): Promise<Produto> {
-    const produto = await this.produtoRepository.findOne({
-      where: { nome },
-    });
-
+    const produto = await this.produtoRepository.findOne({ where: { id } });
     if (!produto) {
       throw new NotFoundException('Produto não encontrado');
     }
@@ -37,10 +34,10 @@ export class ProdutoService {
   }
 
   async removerPorNome(nome: string): Promise<void> {
-  const produto = await this.produtoRepository.findOne({ where: { nome } });
-  if (!produto) {
-    throw new NotFoundException('Produto não encontrado');
-  }
-  await this.produtoRepository.remove(produto);
+    const produto = await this.produtoRepository.findOne({ where: { nome } });
+    if (!produto) {
+      throw new NotFoundException('Produto não encontrado');
+    }
+    await this.produtoRepository.remove(produto);
   }
 }

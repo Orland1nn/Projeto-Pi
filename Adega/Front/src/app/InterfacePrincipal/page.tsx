@@ -59,7 +59,7 @@ export default function InterfacePrincipal() {
                   className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
                   onClick={() => router.push("/Login")}
                 >
-                  Entrar
+                  Login
                 </button>
                 <button
                   className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors cursor-pointer"

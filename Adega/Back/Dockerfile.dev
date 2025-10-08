@@ -1,14 +1,11 @@
-FROM node:20-alpine
+FROM node:20-bullseye-slim
 
-# diretório de trabalho dentro do container
 WORKDIR /usr/src/app
 
-# Copia apenas os arquivos de dependências para instalar
 COPY package*.json ./
 
 RUN npm install
 
-# Copia todo o código
 COPY . .
 
 COPY database.sqlite ./database.sqlite
@@ -16,5 +13,4 @@ COPY database.sqlite ./database.sqlite
 EXPOSE 3000
 ENV PORT=3000
 
-# inicia em modo dev com hot reload
 CMD ["npm", "run", "start:dev"]
