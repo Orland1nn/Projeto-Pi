@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import Header from "@/Components/Header";
 import Produto from "@/Components/Produto";
+import Head from "next/head";
+import HeaderCategorias from "@/Components/HeaderCategorias";
 
 interface Produto {
   id: number;
@@ -38,6 +40,7 @@ export default function Produtos() {
 
   return (
     <Header>
+      <HeaderCategorias></HeaderCategorias>
       {/* CONTEÚDO PRINCIPAL */}
       <div className=" bg-white flex flex-col items-center h-full">
         <h1 className="text-3xl font-extrabold text-black m-5">
