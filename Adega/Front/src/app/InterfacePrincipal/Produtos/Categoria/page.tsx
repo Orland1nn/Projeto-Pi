@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import Header from "@/Components/Header";
 import Produto from "@/Components/Produto";
-import Head from "next/head";
 import HeaderCategorias from "@/Components/HeaderCategorias";
+import { ChevronLeft, Box } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Produto {
   id: number;
@@ -14,8 +14,13 @@ interface Produto {
   imagem: string;
 }
 
-export default function Produtos() {
+export default function Categoria() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // obtém a categoria da URL (ex: /Produtos?categoria=vinhos)
+  const categoria = searchParams.get("categoria") ?? "produtos";
 
   useEffect(() => {
     const fetchProdutos = async () => {
@@ -23,7 +28,6 @@ export default function Produtos() {
         const res = await fetch("http://localhost:3000/products/listar");
         const data = await res.json();
 
-        // garante que todas as imagens tenham "/" na frente
         const produtosComImagem = data.map((p: Produto) => ({
           ...p,
           imagem: p.imagem.startsWith("/") ? p.imagem : `/${p.imagem}`,
@@ -38,17 +42,33 @@ export default function Produtos() {
     fetchProdutos();
   }, []);
 
+  // formata a categoria para exibição com a primeira letra maiúscula
+  const categoriaFormatada =
+    categoria.charAt(0).toUpperCase() + categoria.slice(1);
+
   return (
     <Header>
-      <HeaderCategorias></HeaderCategorias>
-      {/* CONTEÚDO PRINCIPAL */}
-      <div className=" bg-white flex flex-col items-center h-full">
-        <h1 className="text-3xl font-extrabold text-black m-5">
-          Produtos Disponíveis
-        </h1>
+      <HeaderCategorias />
+      <div className="bg-white flex flex-col items-center h-full">
+        <section className="flex flex-row items-center justify-start w-full ">
+          <div
+            className="text-2xl font-extrabold text-black m-5 mr-0 cursor-pointer "
+            onClick={() => router.push("/InterfacePrincipal/Produtos")}
+          >
+            <ChevronLeft />
+          </div>
+          <Box
+            className="text-2xl font-extrabold text-black m-5 ml-0 cursor-pointer "
+            onClick={() => router.push("/InterfacePrincipal/Produtos")}
+          >
+            Voltar
+          </Box>
+          <h1 className="text-3xl font-extrabold text-black m-5 ml-0 rounded-md">
+            {categoriaFormatada}
+          </h1>
+        </section>
 
         <main className="bg-white w-full flex-1 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 p-6 pt-2 overflow-auto">
-          {/* Produtos carregados da API */}
           {produtos.length === 0 ? (
             <p className="text-gray-500">Carregando produtos...</p>
           ) : (
@@ -59,7 +79,7 @@ export default function Produtos() {
                 nome={produto.nome}
                 preco={produto.preco}
                 imagem={produto.imagem}
-              ></Produto>
+              />
             ))
           )}
         </main>
