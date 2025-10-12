@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { ReactNode } from "react";
 
 interface ProdutoProps {
   id: number;
