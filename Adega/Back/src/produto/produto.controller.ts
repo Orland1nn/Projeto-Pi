@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Put,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import {Controller, Get, Post, Body, Put, Param, Delete, Query,} from '@nestjs/common';
 import { ProdutoService } from './produto.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Produto } from './produto.entity';
@@ -19,11 +11,15 @@ export class ProdutoController {
   async criar(@Body() createProdutoDto: CreateProdutoDto): Promise<Produto> {
     return this.produtoService.criar(createProdutoDto);
   }
-
-  @Get('listar')
-  async listar(): Promise<Produto[]> {
-    return this.produtoService.listar();
+  
+  @Get()
+  async listar(@Query('categoria') categoria?: string) {
+    if (categoria) {
+      return this.produtoService.listarPorCategoria(categoria);
+    }
+    return this.produtoService.listarTodos();
   }
+
 
   @Put('atualizar/:id')
   async atualizar(
