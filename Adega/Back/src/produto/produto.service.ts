@@ -19,7 +19,17 @@ export class ProdutoService {
   async listar(): Promise<Produto[]> {
     return await this.produtoRepository.find();
   }
+  async listarTodos(): Promise<Produto[]> {
+    return this.produtoRepository.find();
+  }
 
+  async listarPorCategoria(categoria: string): Promise<Produto[]> {
+    // aqui "tipo" é o campo que representa a categoria
+    return this.produtoRepository.find({
+      where: { tipo: categoria },
+    });
+  }
+  
   async atualizarPorId(
     id: number,
     dados: Partial<CreateProdutoDto>,

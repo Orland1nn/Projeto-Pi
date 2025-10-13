@@ -13,6 +13,13 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
+  async testInsert() {
+    const user = this.usersRepository.create({ nome: 'teste' });
+    const saved = await this.usersRepository.save(user);
+    console.log('SALVO:', saved);
+  }
+
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { nome, email, senha } = createUserDto;
 
