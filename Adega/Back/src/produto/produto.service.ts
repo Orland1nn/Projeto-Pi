@@ -24,7 +24,6 @@ export class ProdutoService {
   }
 
   async listarPorCategoria(categoria: string): Promise<Produto[]> {
-    // aqui "tipo" é o campo que representa a categoria
     return this.produtoRepository.find({
       where: { tipo: categoria },
     });

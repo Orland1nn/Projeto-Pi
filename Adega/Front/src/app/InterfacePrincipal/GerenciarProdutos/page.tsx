@@ -52,7 +52,7 @@ export default function GerenciarProdutos() {
   // Função para buscar produtos (refatorada para ser reutilizável)
   async function fetchProdutos() {
     try {
-      const resposta = await fetch("http://localhost:3000/products/listar");
+      const resposta = await fetch("http://localhost:3000/products");
       if (!resposta.ok) throw new Error("Erro ao buscar produtos");
       const dados = await resposta.json();
       setProdutos(dados);
