@@ -1,59 +1,50 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Package, Users } from "lucide-react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-
 import Header from "@/Components/Header";
 
 interface Produto {
   id: number;
   nome: string;
   preco: string;
-  tipo: string;
   imagem: string;
+  secao?: Secao;
 }
 
-// Helper para formatar o preço do formato de banco de dados ("10.50") para o formato de input ("10,50")
+interface Secao {
+  id: number;
+  nome: string;
+}
+
 function formatPriceForInput(priceString: string): string {
-  // Remove qualquer coisa que não seja dígito ou ponto/vírgula.
-  // Converte para Float (com ponto decimal) e formata para o padrão BR (vírgula decimal).
   try {
     const numericValue = parseFloat(priceString);
     if (isNaN(numericValue)) return "";
-
     return numericValue.toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      useGrouping: true, // Garante que a formatação de milhares funcione
     });
-  } catch (e) {
+  } catch {
     return "";
   }
 }
 
 export default function GerenciarProdutos() {
-  const router = useRouter();
-
-  // Estados para Adicionar Produto
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
-  const [tipo, setTipo] = useState("");
+  const [secaoNome, setSecaoNome] = useState("");
   const [imagem, setImagem] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [produtos, setProdutos] = useState<Produto[]>([]);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null); // controla confirmação
-
-  // ESTADOS PARA EDIÇÃO
+  const [secoes, setSecoes] = useState<Secao[]>([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Produto>>({});
 
-  // Função para buscar produtos (refatorada para ser reutilizável)
   async function fetchProdutos() {
     try {
       const resposta = await fetch("http://localhost:3000/products");
-      if (!resposta.ok) throw new Error("Erro ao buscar produtos");
       const dados = await resposta.json();
       setProdutos(dados);
     } catch (erro) {
@@ -61,16 +52,25 @@ export default function GerenciarProdutos() {
     }
   }
 
-  // ====== BUSCAR PRODUTOS ======
+  async function fetchSecoes() {
+    try {
+      const resposta = await fetch("http://localhost:3000/secoes");
+      const dados = await resposta.json();
+      setSecoes(dados);
+    } catch (erro) {
+      console.error("Erro ao buscar seções:", erro);
+    }
+  }
+
   useEffect(() => {
     fetchProdutos();
+    fetchSecoes();
   }, []);
 
-  // ====== FUNÇÕES AUXILIARES ======
   function limparCampos() {
     setNome("");
     setPreco("");
-    setTipo("");
+    setSecaoNome("");
     setImagem("");
   }
 
@@ -86,89 +86,98 @@ export default function GerenciarProdutos() {
     setNome(capitalizeWords(e.target.value));
   }
 
-  function handleTipoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setTipo(capitalizeWords(e.target.value));
-  }
-
-  // Lógica de formatação de preço para o formulário de Adição
   function handlePrecoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const valorApenasNumeros = e.target.value.replace(/\D/g, "");
     if (valorApenasNumeros) {
       const numero = parseFloat(valorApenasNumeros) / 100;
-      const formatado = numero.toLocaleString("pt-BR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-      setPreco(formatado);
+      setPreco(
+        numero.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      );
     } else {
       setPreco("");
     }
   }
 
-  // ====== FUNÇÕES DE EDIÇÃO ======
+  // ====== ADICIONAR PRODUTO ======
+  async function handleAdicionar(e: React.FormEvent) {
+    e.preventDefault();
 
-  // 1. Inicia o modo de edição
+    try {
+      if (!preco || !secaoNome)
+        throw new Error("Campos obrigatórios não preenchidos");
+
+      const precoNumerico = preco.replace(/\./g, "").replace(",", ".");
+      const precoFinal = parseFloat(precoNumerico).toFixed(2);
+
+      const resposta = await fetch("http://localhost:3000/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome,
+          preco: precoFinal,
+          tipo: secaoNome,
+          imagem,
+        }),
+      });
+
+      if (!resposta.ok) throw new Error("Erro ao adicionar produto");
+
+      setMensagem("Produto adicionado com sucesso!");
+      limparCampos();
+      await fetchProdutos();
+    } catch (error) {
+      console.error("Erro ao adicionar produto:", error);
+      setMensagem("Erro ao adicionar produto!");
+    }
+  }
+
+  // ====== EDIÇÃO ======
   function handleEditar(produto: Produto) {
     setEditingProductId(produto.id);
-    const precoFormatado = formatPriceForInput(produto.preco);
     setEditForm({
       id: produto.id,
       nome: produto.nome,
-      preco: precoFormatado,
-      tipo: produto.tipo,
-      imagem: produto.imagem, // Manter o campo de imagem para o payload
+      preco: formatPriceForInput(produto.preco),
+      imagem: produto.imagem,
+      secao: produto.secao,
     });
   }
 
-  // 2. Lida com a mudança nos inputs de edição
-  function handleEditChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleEditChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) {
     const { name, value } = e.target;
-
     if (name === "preco") {
-      // Reutiliza a lógica de formatação de preço
       const valorApenasNumeros = value.replace(/\D/g, "");
-      let formattedValue = "";
-
       if (valorApenasNumeros) {
         const numero = parseFloat(valorApenasNumeros) / 100;
-        formattedValue = numero.toLocaleString("pt-BR", {
+        const formatado = numero.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
-      }
-      setEditForm((prev) => ({ ...prev, [name]: formattedValue }));
-    } else if (name === "nome" || name === "tipo") {
-      // Capitaliza nome e tipo
-      setEditForm((prev) => ({ ...prev, [name]: capitalizeWords(value) }));
+        setEditForm((prev) => ({ ...prev, preco: formatado }));
+      } else setEditForm((prev) => ({ ...prev, preco: "" }));
     } else {
       setEditForm((prev) => ({ ...prev, [name]: value }));
     }
   }
 
-  // 3. Salva as alterações
   async function handleSalvar() {
-    if (
-      !editingProductId ||
-      !editForm.nome ||
-      !editForm.tipo ||
-      !editForm.preco
-    ) {
-      setMensagem("Por favor, preencha nome, tipo e preço para salvar.");
-      return;
-    }
+    if (!editingProductId) return;
 
     try {
-      // Converte o preço formatado (ex: "1.234,56") para o formato numérico da API (ex: "1234.56")
-      const precoNumerico = editForm.preco
-        .replace(/\./g, "") // Remove pontos (milhares)
-        .replace(",", "."); // Substitui vírgula por ponto (decimal)
+      const precoNumerico =
+        editForm.preco?.replace(/\./g, "").replace(",", ".") ?? "0";
       const precoFinal = parseFloat(precoNumerico).toFixed(2);
 
       const payload = {
         nome: editForm.nome,
         preco: precoFinal,
-        tipo: editForm.tipo,
         imagem: editForm.imagem,
+        tipo: editForm.secao?.nome,
       };
 
       const resposta = await fetch(
@@ -180,52 +189,16 @@ export default function GerenciarProdutos() {
         }
       );
 
-      if (!resposta.ok) throw new Error("Erro ao salvar o produto");
+      if (!resposta.ok) throw new Error("Erro ao salvar produto");
 
-      setEditingProductId(null); // Sai do modo de edição
-      setEditForm({}); // Limpa o estado de edição
-
-      await fetchProdutos(); // Recarrega a lista
+      setEditingProductId(null);
+      setEditForm({});
+      await fetchProdutos();
     } catch (error) {
       console.error("Erro ao salvar produto:", error);
-      setMensagem("Erro ao salvar produto!");
     }
   }
 
-  // ====== ADICIONAR PRODUTO ======
-  async function handleAdicionar(e: React.FormEvent) {
-    e.preventDefault();
-
-    try {
-      if (!preco) throw new Error("Preço inválido");
-
-      const precoNumerico = preco.replace(/\./g, "").replace(",", ".");
-      const precoFinal = parseFloat(precoNumerico).toFixed(2);
-
-      const resposta = await fetch("http://localhost:3000/products", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nome,
-          preco: precoFinal,
-          tipo,
-          imagem,
-        }),
-      });
-
-      if (!resposta.ok) throw new Error("Erro ao adicionar produto");
-
-      setMensagem("Produto adicionado com sucesso!");
-      limparCampos();
-
-      await fetchProdutos(); // Recarregar produtos
-    } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
-      setMensagem("Erro ao adicionar produto!");
-    }
-  }
-
-  // ====== REMOVER PRODUTO ======
   async function confirmarRemoverProduto(id: number, nomeProduto: string) {
     try {
       const resposta = await fetch(
@@ -237,21 +210,17 @@ export default function GerenciarProdutos() {
 
       if (!resposta.ok) throw new Error("Erro ao remover produto");
 
-      // Atualiza a lista de produtos local
       setProdutos((prev) => prev.filter((p) => p.id !== id));
       setConfirmDeleteId(null);
     } catch (error) {
       console.error("Erro ao remover produto:", error);
-      setMensagem(`Erro ao remover produto "${nomeProduto}"`);
     }
   }
 
-  // ====== RENDER ======
   return (
     <Header>
-      {/* CONTEÚDO PRINCIPAL */}
       <main className="flex-1 w-full flex flex-row bg-white">
-        {/* FORMULÁRIO DE ADIÇÃO */}
+        {/* FORM ADIÇÃO */}
         <div className="h-full w-1/2 bg-white flex items-start justify-center p-8">
           <form
             onSubmit={handleAdicionar}
@@ -267,7 +236,7 @@ export default function GerenciarProdutos() {
                 type="text"
                 value={nome}
                 onChange={handleNomeChange}
-                className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
+                className="mt-1 w-full px-3 py-2 border rounded-md text-black"
                 required
               />
             </label>
@@ -279,21 +248,26 @@ export default function GerenciarProdutos() {
                 inputMode="numeric"
                 value={preco}
                 onChange={handlePrecoChange}
-                placeholder="R$ 0,00"
-                className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
+                className="mt-1 w-full px-3 py-2 border rounded-md text-black"
                 required
               />
             </label>
 
             <label className="block mb-3">
-              <span className="text-gray-700 text-sm">Tipo de Produto</span>
-              <input
-                type="text"
-                value={tipo}
-                onChange={handleTipoChange}
-                className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
+              <span className="text-gray-700 text-sm">Seção</span>
+              <select
+                value={secaoNome}
+                onChange={(e) => setSecaoNome(e.target.value)}
+                className="mt-1 w-full px-3 py-2 border rounded-md text-black"
                 required
-              />
+              >
+                <option value="">Selecione uma seção</option>
+                {secoes.map((s) => (
+                  <option key={s.id} value={s.nome}>
+                    {s.nome}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="block mb-4">
@@ -303,14 +277,14 @@ export default function GerenciarProdutos() {
                 value={imagem}
                 onChange={(e) => setImagem(e.target.value)}
                 placeholder="/imagens/produto.jpg"
-                className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:ring-rose-300 text-black"
+                className="mt-1 w-full px-3 py-2 border rounded-md text-black"
                 required
               />
             </label>
 
             <button
               type="submit"
-              className="w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
+              className="w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700"
             >
               Adicionar
             </button>
@@ -323,7 +297,7 @@ export default function GerenciarProdutos() {
           </form>
         </div>
 
-        {/* LISTA DE PRODUTOS */}
+        {/* LISTA */}
         <section className="h-full w-1/2 bg-gray-50 p-6 overflow-y-auto mt-9 mr-24 rounded-lg shadow max-h-[80vh]">
           <h2 className="text-xl font-semibold mb-4 text-gray-800 text-center">
             Produtos Cadastrados
@@ -333,37 +307,30 @@ export default function GerenciarProdutos() {
             {produtos.length > 0 ? (
               produtos.map((p) => {
                 const isEditing = p.id === editingProductId;
-                const currentEdit = isEditing ? editForm : {};
 
                 return (
                   <div
                     key={p.id}
                     className="flex flex-row items-center justify-start gap-3 bg-white p-3 rounded-lg shadow-sm"
                   >
-                    {/* Imagem */}
                     <div className="relative w-16 h-16 shrink-0">
                       <Image
                         src={p.imagem || "/imagens/default.jpg"}
                         alt={p.nome}
                         fill
                         className="object-cover rounded-md"
-                        sizes="64px"
-                        priority
                       />
                     </div>
 
-                    {/* Campos de Informação (Leitura ou Edição) */}
                     <div className="flex-1 flex items-center">
-                      {/* Nome */}
-                      <div className=" ml-8 w-32 shrink-0">
+                      <div className="ml-8 w-32">
                         {isEditing ? (
                           <input
                             type="text"
                             name="nome"
-                            value={currentEdit.nome || ""}
+                            value={editForm.nome || ""}
                             onChange={handleEditChange}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md text-gray-800 font-semibold focus:ring-rose-300 focus:border-rose-300"
-                            required
+                            className="w-full px-2 py-1 border rounded-md text-gray-800"
                           />
                         ) : (
                           <p className="font-semibold text-gray-800">
@@ -372,34 +339,41 @@ export default function GerenciarProdutos() {
                         )}
                       </div>
 
-                      {/* Tipo */}
-                      <div className="w-32 shrink-0">
+                      <div className="w-32">
                         {isEditing ? (
-                          <input
-                            type="text"
-                            name="tipo"
-                            value={currentEdit.tipo || ""}
-                            onChange={handleEditChange}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md text-gray-600 focus:ring-rose-300 focus:border-rose-300"
-                            required
-                          />
+                          <select
+                            name="secao"
+                            value={editForm.secao?.nome || ""}
+                            onChange={(e) =>
+                              setEditForm((prev) => ({
+                                ...prev,
+                                secao: { nome: e.target.value } as Secao,
+                              }))
+                            }
+                            className="w-full px-2 py-1 border rounded-md text-gray-600"
+                          >
+                            <option value="">Selecione</option>
+                            {secoes.map((s) => (
+                              <option key={s.id} value={s.nome}>
+                                {s.nome}
+                              </option>
+                            ))}
+                          </select>
                         ) : (
-                          <p className="text-gray-600">{p.tipo}</p>
+                          <p className="text-gray-600">
+                            {p.secao?.nome || "—"}
+                          </p>
                         )}
                       </div>
 
-                      {/* Preço */}
-                      <div className="w-28 shrink-0">
+                      <div className="w-28">
                         {isEditing ? (
                           <input
                             type="text"
                             name="preco"
-                            inputMode="numeric"
-                            value={currentEdit.preco || ""}
+                            value={editForm.preco || ""}
                             onChange={handleEditChange}
-                            placeholder="0,00"
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md text-rose-600 font-bold focus:ring-rose-300 focus:border-rose-300"
-                            required
+                            className="w-full px-2 py-1 border rounded-md text-rose-600 font-bold"
                           />
                         ) : (
                           <p className="text-rose-600 font-bold">
@@ -409,19 +383,18 @@ export default function GerenciarProdutos() {
                       </div>
                     </div>
 
-                    {/* Botões de Ação */}
-                    <div className="flex flex-col gap-2 ml-auto w-28 shrink-0">
+                    <div className="flex flex-col gap-2 ml-auto w-28">
                       {isEditing ? (
                         <>
                           <button
                             onClick={handleSalvar}
-                            className="text-white font-semibold bg-green-500 rounded-md p-2 cursor-pointer hover:bg-green-600 transition-colors"
+                            className="text-white bg-green-500 rounded-md p-2 hover:bg-green-600"
                           >
                             Salvar
                           </button>
                           <button
                             onClick={() => setEditingProductId(null)}
-                            className="text-black font-semibold bg-gray-300 rounded-md p-2 cursor-pointer hover:bg-gray-400 transition-colors"
+                            className="text-black bg-gray-300 rounded-md p-2 hover:bg-gray-400"
                           >
                             Cancelar
                           </button>
@@ -429,27 +402,26 @@ export default function GerenciarProdutos() {
                       ) : (
                         <button
                           onClick={() => handleEditar(p)}
-                          className="text-black font-semibold bg-amber-200 rounded-md p-2 cursor-pointer hover:bg-amber-300 transition-colors"
+                          className="text-black bg-amber-200 rounded-md p-2 hover:bg-amber-300"
                         >
                           Atualizar
                         </button>
                       )}
 
-                      {/* Botão Remover (Mantido) */}
                       {!isEditing &&
                         (confirmDeleteId === p.id ? (
                           <button
                             onClick={() =>
                               confirmarRemoverProduto(p.id, p.nome)
                             }
-                            className="text-white font-semibold bg-red-500 rounded-md p-2 cursor-pointer hover:bg-red-600 transition-colors"
+                            className="text-white bg-red-500 rounded-md p-2 hover:bg-red-600"
                           >
                             Remover
                           </button>
                         ) : (
                           <button
                             onClick={() => setConfirmDeleteId(p.id)}
-                            className="text-black font-semibold bg-rose-200 rounded-md p-2 cursor-pointer hover:bg-rose-300 transition-colors"
+                            className="text-black bg-rose-200 rounded-md p-2 hover:bg-rose-300"
                           >
                             Remover
                           </button>

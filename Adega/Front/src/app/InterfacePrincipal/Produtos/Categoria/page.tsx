@@ -25,7 +25,9 @@ export default function Categoria() {
   useEffect(() => {
     const fetchProdutos = async () => {
       try {
-        const res = await fetch("http://localhost:3000/products");
+        const res = await fetch(
+          `http://localhost:3000/products?categoria=${categoria}`
+        );
         const data = await res.json();
 
         const produtosComImagem = data.map((p: Produto) => ({
@@ -40,9 +42,8 @@ export default function Categoria() {
     };
 
     fetchProdutos();
-  }, []);
+  }, [categoria]);
 
-  // formata a categoria para exibição com a primeira letra maiúscula
   const categoriaFormatada =
     categoria.charAt(0).toUpperCase() + categoria.slice(1);
 
