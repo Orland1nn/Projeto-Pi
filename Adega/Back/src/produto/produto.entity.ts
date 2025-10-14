@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Secao } from '../secao/secao.entity';
 
 @Entity('products')
 export class Produto {
@@ -9,11 +16,15 @@ export class Produto {
   nome: string;
 
   @Column()
-  tipo: string;
+  tipo: string; // será usado como chave da relação
 
   @Column('decimal')
   preco: number;
 
   @Column()
   imagem: string;
+
+  @ManyToOne(() => Secao, (secao) => secao.produtos, { eager: true })
+  @JoinColumn({ name: 'tipo', referencedColumnName: 'nome' })
+  secao: Secao;
 }

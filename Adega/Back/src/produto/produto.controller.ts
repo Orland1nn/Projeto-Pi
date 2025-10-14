@@ -1,4 +1,13 @@
-import {Controller, Get, Post, Body, Put, Param, Delete, Query,} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ProdutoService } from './produto.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Produto } from './produto.entity';
@@ -11,7 +20,7 @@ export class ProdutoController {
   async criar(@Body() createProdutoDto: CreateProdutoDto): Promise<Produto> {
     return this.produtoService.criar(createProdutoDto);
   }
-  
+
   @Get()
   async listar(@Query('categoria') categoria?: string) {
     if (categoria) {
@@ -19,7 +28,6 @@ export class ProdutoController {
     }
     return this.produtoService.listarTodos();
   }
-
 
   @Put('atualizar/:id')
   async atualizar(

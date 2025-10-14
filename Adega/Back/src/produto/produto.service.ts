@@ -3,22 +3,41 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Produto } from './produto.entity';
 import { CreateProdutoDto } from './dto/create-produto.dto';
+import { Secao } from 'src/secao/secao.entity';
 
 @Injectable()
 export class ProdutoService {
   constructor(
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
+
+    @InjectRepository(Secao)
+    private secaoRepository: Repository<Secao>,
   ) {}
 
   async criar(createProdutoDto: CreateProdutoDto): Promise<Produto> {
-    const produto = this.produtoRepository.create(createProdutoDto);
+    const secao = await this.secaoRepository.findOne({
+      where: { nome: createProdutoDto.tipo },
+    });
+
+    if (!secao) {
+      throw new NotFoundException(
+        `A seção '${createProdutoDto.tipo}' não existe.`,
+      );
+    }
+
+    const produto = this.produtoRepository.create({
+      ...createProdutoDto,
+      secao,
+    });
+
     return await this.produtoRepository.save(produto);
   }
 
   async listar(): Promise<Produto[]> {
     return await this.produtoRepository.find();
   }
+
   async listarTodos(): Promise<Produto[]> {
     return this.produtoRepository.find();
   }
@@ -28,7 +47,7 @@ export class ProdutoService {
       where: { tipo: categoria },
     });
   }
-  
+
   async atualizarPorId(
     id: number,
     dados: Partial<CreateProdutoDto>,

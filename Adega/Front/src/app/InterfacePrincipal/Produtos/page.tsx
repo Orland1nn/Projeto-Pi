@@ -18,7 +18,7 @@ export default function Produtos() {
   useEffect(() => {
     const fetchProdutos = async () => {
       try {
-        const res = await fetch("http://localhost:3000/products/listar");
+        const res = await fetch("http://localhost:3000/products");
         const data = await res.json();
 
         // garante que todas as imagens tenham "/" na frente

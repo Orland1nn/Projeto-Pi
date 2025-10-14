@@ -25,7 +25,7 @@ export default function Categoria() {
   useEffect(() => {
     const fetchProdutos = async () => {
       try {
-        const res = await fetch("http://localhost:3000/products/listar");
+        const res = await fetch("http://localhost:3000/products");
         const data = await res.json();
 
         const produtosComImagem = data.map((p: Produto) => ({
