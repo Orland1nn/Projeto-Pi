@@ -58,11 +58,23 @@ class DatabaseMonitor implements OnModuleInit {
         synchronize: true,
         logging: true, */
 
-        type: 'postgres',
+        /*type: 'postgres',
         host: '127.0.0.1',
         port: 5433,
         username: 'postgres',
         password: '12345678',
+        database: 'postgres',
+        autoLoadEntities: true,
+        synchronize: true,
+        logging: true, */
+
+
+
+        type: 'postgres',
+        host: '127.0.0.1',
+        port: 5434,
+        username: 'postgres',
+        password: 'iphone16pro',
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
