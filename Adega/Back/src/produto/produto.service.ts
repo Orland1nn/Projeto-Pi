@@ -68,4 +68,17 @@ export class ProdutoService {
     }
     await this.produtoRepository.remove(produto);
   }
+
+  async buscarPorNome(nome: string): Promise<Produto> {
+  const produto = await this.produtoRepository.findOne({
+    where: { nome },
+  });
+
+  if (!produto) {
+    throw new NotFoundException(`Produto com nome "${nome}" não encontrado.`);
+  }
+
+  return produto;
+  }
+
 }

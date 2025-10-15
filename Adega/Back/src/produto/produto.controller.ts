@@ -41,4 +41,10 @@ export class ProdutoController {
   async remover(@Param('nome') nome: string): Promise<void> {
     return this.produtoService.removerPorNome(nome);
   }
+
+  @Get('nome/:nome')
+  async buscarPorNome(@Param('nome') nome: string): Promise<Produto> {
+    return this.produtoService.buscarPorNome(nome);
+  }
+
 }
