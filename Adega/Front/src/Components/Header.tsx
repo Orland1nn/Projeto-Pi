@@ -34,7 +34,7 @@ export default function Header({ children }: HeaderProps) {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/InterfacePrincipal/Produtos")}
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-200 transition-colors cursor-pointer font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
               >
                 Produtos
               </button>
@@ -43,9 +43,16 @@ export default function Header({ children }: HeaderProps) {
                 onClick={() =>
                   router.push("/InterfacePrincipal/GerenciarProdutos")
                 }
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-200 transition-colors cursor-pointer font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
               >
                 Gerenciar
+              </button>
+
+              <button
+                onClick={() => router.push("/InterfacePrincipal/Pedidos")}
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
+              >
+                Pedidos
               </button>
             </div>
 

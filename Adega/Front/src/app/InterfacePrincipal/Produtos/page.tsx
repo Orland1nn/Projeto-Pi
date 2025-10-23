@@ -54,7 +54,7 @@ export default function Produtos() {
       <HeaderCategorias />
 
       <div className="bg-white flex flex-col items-center h-full">
-        <h1 className="text-3xl font-extrabold text-black m-5">
+        <h1 className="text-2xl font-extrabold text-black m-5">
           Produtos Disponíveis
         </h1>
 
