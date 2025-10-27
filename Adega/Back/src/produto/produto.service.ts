@@ -81,4 +81,11 @@ export class ProdutoService {
   return produto;
   }
 
+  async listarTop5PorQuantidade(): Promise<Produto[]> {
+  return await this.produtoRepository.find({
+    order: { quantidade: 'DESC' },
+    take: 5,
+  });
+  }
+
 }

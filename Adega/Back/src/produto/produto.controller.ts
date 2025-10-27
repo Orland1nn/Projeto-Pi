@@ -47,4 +47,9 @@ export class ProdutoController {
     return this.produtoService.buscarPorNome(nome);
   }
 
+  @Get('top5')
+  async listarTop5PorQuantidade(): Promise<Produto[]> {
+    return this.produtoService.listarTop5PorQuantidade();
+  }
+
 }

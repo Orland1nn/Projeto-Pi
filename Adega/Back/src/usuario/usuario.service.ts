@@ -1,10 +1,9 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './usuario.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
-
 
 @Injectable()
 export class UsersService {
@@ -19,7 +18,6 @@ export class UsersService {
     console.log('SALVO:', saved);
   }
 
-
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { nome, email, senha } = createUserDto;
 
@@ -27,9 +25,9 @@ export class UsersService {
     if (userExists) {
       throw new BadRequestException('E-mail já está em uso');
     }
-    
+
     console.log('Senha recebida:', senha);
-    const hashedPassword = await bcrypt.hash(createUserDto.senha, 10);
+    const hashedPassword = await bcrypt.hash(senha, 10);
 
     const user = this.usersRepository.create({
       nome,
@@ -40,7 +38,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-   async validateUser(createUserDto: CreateUserDto ): Promise<any> {
+  async validateUser(createUserDto: CreateUserDto): Promise<any> {
     const { email, senha } = createUserDto;
 
     const user = await this.usersRepository.findOne({ where: { email } });
@@ -57,7 +55,23 @@ export class UsersService {
       message: 'Login realizado com sucesso!',
       userId: user.id,
       email: user.email,
-      nome: user.nome
+      nome: user.nome,
     };
+  }
+
+  async listarTodos(): Promise<User[]> {
+    const usuarios = await this.usersRepository.find();
+    if (!usuarios.length) {
+      throw new NotFoundException('Nenhum usuário encontrado.');
+    }
+    return usuarios;
+  }
+
+  async buscarPorEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { email } });
+    if (!user) {
+    throw new NotFoundException(`Usuário com e-mail "${email}" não encontrado.`);
+  }
+    return user;
   }
 }
