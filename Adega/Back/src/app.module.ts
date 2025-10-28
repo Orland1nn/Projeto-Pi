@@ -45,8 +45,8 @@ class DatabaseMonitor implements OnModuleInit {
         database: process.env.DB_NAME,
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,*/
-
+        logging: true,
+        */
         /*type: 'postgres',
         host: '127.0.0.1',
         port: 5432,
@@ -55,9 +55,9 @@ class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,*/
-
-        type: 'postgres',
+        logging: true,
+        */
+        /*type: 'postgres',
         host: '127.0.0.1',
         port: 5433,
         username: 'postgres',
@@ -65,9 +65,9 @@ class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,
+        logging: true, */
 
-//HEAD
+/*HEAD */
 
 
         // type: 'postgres',
@@ -82,18 +82,18 @@ class DatabaseMonitor implements OnModuleInit {
 
 
 
-        /*
+        
         type: 'postgres',
-        host: '127.0.0.1',
-        port: 5434,
+        host: 'db',
+        port: 5432,
         username: 'postgres',
-        password: 'iphone16pro',
+        password: 'postgres',
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        */
- //4e8fd3eb45b70fc9771394c2b286496e91f28193
+        
+ /*4e8fd3eb45b70fc9771394c2b286496e91f28193*/
       }),
     }),
     ProdutoModule,
