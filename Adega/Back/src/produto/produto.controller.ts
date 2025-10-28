@@ -11,6 +11,7 @@ import {
 import { ProdutoService } from './produto.service';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Produto } from './produto.entity';
+import { UpdateQuantidadeDto } from './dto/update-quantidade.dto';
 
 @Controller('products')
 export class ProdutoController {
@@ -51,5 +52,15 @@ export class ProdutoController {
   async listarTop5PorQuantidade(): Promise<Produto[]> {
     return this.produtoService.listarTop5PorQuantidade();
   }
+
+   @Put('aumentar')
+  aumentar(@Body() data: UpdateQuantidadeDto) {
+    return this.produtoService.aumentarQuantidade(data);
+  }
+
+  @Put('diminuir')
+  diminuir(@Body() data: UpdateQuantidadeDto) {
+  return this.produtoService.diminuirQuantidade(data);
+}
 
 }

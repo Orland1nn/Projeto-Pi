@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Produto } from './produto.entity';
 import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Secao } from 'src/secao/secao.entity';
+import { UpdateQuantidadeDto } from './dto/update-quantidade.dto';
+
 
 @Injectable()
 export class ProdutoService {
@@ -87,5 +89,39 @@ export class ProdutoService {
     take: 5,
   });
   }
+
+  async aumentarQuantidade(data: UpdateQuantidadeDto) {
+  const { id, nome, quantidade } = data;
+
+  const produto = await this.produtoRepository.findOne({
+    where: id ? { id } : { nome },
+  });
+
+  if (!produto) {
+    throw new Error('Produto não encontrado');
+  }
+
+  produto.quantidade += quantidade;
+  return this.produtoRepository.save(produto);
+}
+
+async diminuirQuantidade(data: UpdateQuantidadeDto) {
+  const { id, nome, quantidade } = data;
+
+  const produto = await this.produtoRepository.findOne({
+    where: id ? { id } : { nome },
+  });
+
+  if (!produto) {
+    throw new Error('Produto não encontrado');
+  }
+
+  if (produto.quantidade < quantidade) {
+    throw new Error('Quantidade insuficiente em estoque');
+  }
+
+  produto.quantidade -= quantidade;
+  return this.produtoRepository.save(produto);
+}
 
 }
