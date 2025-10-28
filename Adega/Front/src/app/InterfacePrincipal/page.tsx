@@ -6,12 +6,12 @@ import Image from "next/image";
 
 export default function InterfacePrincipal() {
   const [currentImage, setCurrentImage] = useState(0);
-  
+
   const images = [
-    "/StockFlow logo.png",
-    "/stockflow image2.jpg",
-    "/stockflow image3.jpg",
-    "/stockflow image4.jpg",
+    "/LogoCarrossel1.jpeg",
+    "/LogoCarrossel4.jpeg",
+    "/LogoCarrossel3.jpeg",
+    "/LogoCarrossel2.jpeg",
   ];
 
   // Auto avançar o carrossel a cada 5 segundos

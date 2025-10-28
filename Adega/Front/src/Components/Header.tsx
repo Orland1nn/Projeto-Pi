@@ -58,9 +58,12 @@ export default function Header({ children }: HeaderProps) {
 
             {/* Right side - User section */}
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-gray-600">
+              <div
+                className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-amber-600"
+                onClick={() => router.push("/InterfacePrincipal/Usuarios")}
+              >
                 <Users className="w-4 h-4" />
-                <span className="text-sm">Olá, bem-vindo(a)</span>
+                <span className="text-sm">Bem-vindo(a)</span>
               </div>
 
               <div className="flex items-center gap-2">

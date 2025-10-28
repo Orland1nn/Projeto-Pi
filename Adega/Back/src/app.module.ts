@@ -37,6 +37,7 @@ class DatabaseMonitor implements OnModuleInit {
     // Configura conexão com o banco usando variáveis do .env
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
+        /*
         type: 'postgres',
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT ?? '5432', 10),
@@ -45,9 +46,9 @@ class DatabaseMonitor implements OnModuleInit {
         database: process.env.DB_NAME,
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,
-        
-        /*type: 'postgres',
+        logging: true,*/
+
+        type: 'postgres',
         host: '127.0.0.1',
         port: 5432,
         username: 'postgres',
@@ -56,7 +57,7 @@ class DatabaseMonitor implements OnModuleInit {
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        */
+
         /*type: 'postgres',
         host: '127.0.0.1',
         port: 5433,
@@ -67,31 +68,17 @@ class DatabaseMonitor implements OnModuleInit {
         synchronize: true,
         logging: true, */
 
-/*HEAD */
-
-
-        // type: 'postgres',
-        // host: '127.0.0.1',
-        // port: 5434,
-        // username: 'postgres',
-        // password: 'iphone16pro',
-        // database: 'postgres',
-        // autoLoadEntities: true,
-        // synchronize: true,
-        // logging: true,
-
         /*
         type: 'postgres',
-        host: 'db',
-        port: 5432,
+        host: '127.0.0.1',
+        port: 5434,
         username: 'postgres',
-        password: 'postgres',
+        password: 'iphone16pro',
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true, */
-        
- /*4e8fd3eb45b70fc9771394c2b286496e91f28193*/
+        logging: true,
+        */
       }),
     }),
     ProdutoModule,
