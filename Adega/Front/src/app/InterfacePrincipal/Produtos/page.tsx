@@ -10,6 +10,7 @@ interface Produto {
   nome: string;
   preco: string;
   imagem: string;
+  quantidade: number;
 }
 
 export default function Produtos() {
@@ -113,6 +114,7 @@ export default function Produtos() {
                 nome={produto.nome}
                 preco={produto.preco}
                 imagem={produto.imagem}
+                quantidade={produto.quantidade}
               />
             ))
           )}

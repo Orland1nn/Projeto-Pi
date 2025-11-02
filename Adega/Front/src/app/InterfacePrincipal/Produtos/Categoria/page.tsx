@@ -12,6 +12,7 @@ interface Produto {
   nome: string;
   preco: string;
   imagem: string;
+  quantidade: number;
 }
 
 export default function Categoria() {
@@ -138,6 +139,7 @@ export default function Categoria() {
                 nome={produto.nome}
                 preco={produto.preco}
                 imagem={produto.imagem}
+                quantidade={produto.quantidade}
               />
             ))
           )}
