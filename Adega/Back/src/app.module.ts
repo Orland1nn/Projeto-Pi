@@ -37,7 +37,6 @@ class DatabaseMonitor implements OnModuleInit {
     // Configura conexão com o banco usando variáveis do .env
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
-        /*
         type: 'postgres',
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT ?? '5432', 10),
@@ -46,9 +45,10 @@ class DatabaseMonitor implements OnModuleInit {
         database: process.env.DB_NAME,
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,*/
+        logging: true,
 
-        /*type: 'postgres',
+        /*
+        type: 'postgres',
         host: '127.0.0.1',
         port: 5432,
         username: 'postgres',
@@ -56,7 +56,7 @@ class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,
+        logging: true,*/
 
         /*type: 'postgres',
         host: '127.0.0.1',
@@ -68,7 +68,7 @@ class DatabaseMonitor implements OnModuleInit {
         synchronize: true,
         logging: true, */
 
-        
+        /*
         type: 'postgres',
         host: '127.0.0.1',
         port: 5434,
@@ -78,7 +78,7 @@ class DatabaseMonitor implements OnModuleInit {
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        
+        */
       }),
     }),
     ProdutoModule,

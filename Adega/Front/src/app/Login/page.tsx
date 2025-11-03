@@ -21,9 +21,7 @@ export default function Login() {
     try {
       const response = await fetch("http://localhost:3000/users/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha }),
       });
 
@@ -40,15 +38,13 @@ export default function Login() {
     }
   };
 
-  const handleCadastrar = () => {
-    router.push("/");
-  };
+  const handleCadastrar = () => router.push("/");
 
   return (
-    <div className="h-screen w-screen bg-white flex flex-col items-center justify-center">
-      <main className="bg-gray-50 h-3/6 w-120 flex flex-col items-center p-5 border rounded-xl shadow-md">
-        <h1 className="font-extrabold text-2xl text-black">Login</h1>
-        <div className="w-16 h-1 bg-green-500 rounded-full my-2"></div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
+      <main className="bg-white w-full max-w-md rounded-2xl shadow-lg p-8 flex flex-col items-center">
+        <h1 className="font-extrabold text-3xl text-gray-900">Login</h1>
+        <div className="w-16 h-1 bg-green-500 rounded-full my-3"></div>
 
         {/* FORM */}
         <form
@@ -89,26 +85,24 @@ export default function Login() {
             />
           </div>
 
-          <div className="flex flex-row w-4/5 gap-4 justify-between">
+          <div className="flex w-4/5 justify-between gap-4">
             <button
               type="submit"
-              className="cursor-pointer bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition"
             >
               Entrar
             </button>
             <button
               type="button"
               onClick={handleCadastrar}
-              className="cursor-pointer bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300"
+              className="bg-gray-200 text-black px-4 py-2 rounded-md hover:bg-gray-300 transition"
             >
               Cadastrar
             </button>
           </div>
         </form>
 
-        {erro && (
-          <h3 className="text-red-600 font-bold mt-3 text-blac">{erro}</h3>
-        )}
+        {erro && <h3 className="text-red-600 font-bold mt-3">{erro}</h3>}
       </main>
     </div>
   );
