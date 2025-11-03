@@ -1,0 +1,17 @@
+# Ignorar dependências
+node_modules/
+
+# Ignorar logs
+*.log
+
+# Ignorar builds e caches comuns
+dist/
+build/
+.next/
+out/
+.cache/
+
+# Ignorar ambientes
+.env
+.env.local
+.env.*.local
