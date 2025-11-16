@@ -1,11 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Secao } from '../secao/secao.entity';
+
+import type { Pedido } from '../pedido/pedido.entity';
 
 @Entity('products')
 export class Produto {
@@ -16,9 +12,9 @@ export class Produto {
   nome: string;
 
   @Column()
-  tipo: string; // será usado como chave da relação
+  tipo: string; 
 
-  @Column('decimal', { precision: 10, scale: 2 }) 
+  @Column('decimal', { precision: 10, scale: 2 })
   preco: number;
 
   @Column()
@@ -30,4 +26,7 @@ export class Produto {
   @ManyToOne(() => Secao, (secao) => secao.produtos, { eager: true })
   @JoinColumn({ name: 'tipo', referencedColumnName: 'nome' })
   secao: Secao;
+
+  @OneToMany(() => require('../pedido/pedido.entity').Pedido, (pedido: any) => pedido.produto)
+  pedidos: Pedido[];
 }
