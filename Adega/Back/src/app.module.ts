@@ -5,7 +5,6 @@ import { DataSource } from 'typeorm';
 import { ProdutoModule } from './produto/produto.module';
 import { SecaoModule } from './secao/secao.module';
 import { UsersModule } from './usuario/usuario.module';
-import { PedidoModule } from './pedido/pedido.module'; 
 
 @Injectable()
 class DatabaseMonitor implements OnModuleInit {
@@ -59,7 +58,7 @@ class DatabaseMonitor implements OnModuleInit {
         synchronize: true,
         logging: true,*/
 
-        type: 'postgres',
+        /*type: 'postgres',
         host: '127.0.0.1',
         port: 5433,
         username: 'postgres',
@@ -67,9 +66,9 @@ class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true, 
+        logging: true, */
 
-        /*
+        
         type: 'postgres',
         host: '127.0.0.1',
         port: 5434,
@@ -79,13 +78,12 @@ class DatabaseMonitor implements OnModuleInit {
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        */
+        
       }),
     }),
     ProdutoModule,
     SecaoModule,
     UsersModule,
-    PedidoModule, 
   ],
   providers: [DatabaseMonitor],
 })

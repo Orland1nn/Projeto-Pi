@@ -4,6 +4,7 @@ import Header from "@/Components/Header";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const MAX_QUANTIDADE_DISPONIVEL = 999;
 
@@ -18,6 +19,7 @@ interface Produto {
 export default function PaginaProduto() {
   const searchParams = useSearchParams();
   const nomeProduto = searchParams.get("nome");
+  const router = useRouter();
 
   const [produto, setProduto] = useState<Produto | null>(null);
   const [quantidadeAdicionar, setQuantidadeAdicionar] = useState(0);
@@ -197,9 +199,26 @@ export default function PaginaProduto() {
               </div>
             </div>
 
+             <button
+              onClick={() => {
+                router.push(
+                  `/InterfacePrincipal/Vendas/${produto.id}?` +
+                    `nome=${encodeURIComponent(produto.nome)}` +
+                    `&preco=${encodeURIComponent(produto.preco)}` +
+                    `&imagem=${encodeURIComponent(produto.imagem)}` +
+                    `&quantidade=${produto.quantidade}`
+                );
+              }}
+              className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-lg transition shadow-md mt-2 text-sm"
+            >
+              Vender produto
+            </button>
+
+     
+
             <button
               onClick={handleAdicionarAoPedido}
-              className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-3 rounded-lg transition shadow-md mt-2 text-sm"
+              className="cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-3 rounded-lg transition shadow-md text-sm"
             >
               🛒 Adicionar ao pedido
             </button>
