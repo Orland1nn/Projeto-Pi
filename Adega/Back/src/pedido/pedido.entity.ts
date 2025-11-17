@@ -1,6 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Produto } from '../produto/produto.entity';
-import { User } from '../usuario/usuario.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { PedidoItem } from './pedido-item.entity';
 
 @Entity('pedidos')
 export class Pedido {
@@ -8,22 +7,17 @@ export class Pedido {
   id: number;
 
   @Column()
-  data: Date;
+  formaPagamento: string;
+
+  @Column()
+  status: string;
 
   @Column('int')
-  quantidade: number;
+  totalItens: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
   precoTotal: number;
 
-  @ManyToOne(() => Produto, (produto) => produto.pedidos)
-  @JoinColumn({ name: 'produtoId' })
-  produto: Produto;
-
-  @ManyToOne(() => User, (user) => user.pedidos)
-  @JoinColumn({ name: 'userId' })
-  usuario: User;
-
-  @Column()
-  formaPagamento: string;
+  @OneToMany(() => PedidoItem, (item) => item.pedido, { cascade: true })
+  itens: PedidoItem[];
 }

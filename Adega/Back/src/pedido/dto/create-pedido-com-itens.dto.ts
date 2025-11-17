@@ -1,6 +1,6 @@
 export class CreatePedidoComItensDto {
-  readonly data: Date;
   readonly formaPagamento: string;
+  readonly status: string;
   readonly itens: Array<{
     produtoId: number;
     quantidade: number;
