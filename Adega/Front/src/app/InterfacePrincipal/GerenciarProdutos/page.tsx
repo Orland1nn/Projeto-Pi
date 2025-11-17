@@ -275,7 +275,12 @@ export default function GerenciarProdutos() {
               <input
                 type="text"
                 value={imagem}
-                onChange={(e) => setImagem(e.target.value)}
+                onChange={(e) => {
+                  let valor = e.target.value;
+                  // garante que começa com /
+                  if (valor && !valor.startsWith("/")) valor = "/" + valor;
+                  setImagem(valor);
+                }}
                 placeholder="/imagens/produto.jpg"
                 className="mt-1 w-full px-3 py-2 border rounded-md text-black"
                 required
@@ -315,8 +320,16 @@ export default function GerenciarProdutos() {
                   >
                     <div className="relative w-16 h-16 shrink-0">
                       <Image
-                        src={p.imagem || "/imagens/default.jpg"}
-                        alt={p.nome}
+                        src={
+                          p.imagem && p.imagem.trim() !== ""
+                            ? p.imagem.startsWith("http")
+                              ? p.imagem
+                              : p.imagem.startsWith("/")
+                              ? p.imagem
+                              : `/${p.imagem}` // garante que começa com /
+                            : "/imagens/default.jpg" // fallback
+                        }
+                        alt={p.nome || "Produto"}
                         fill
                         className="object-cover rounded-md"
                       />
