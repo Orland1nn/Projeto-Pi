@@ -45,7 +45,3 @@ Abaixo, os membros da equipe e suas respectivas áreas de atuação no projeto.
 
 ---
 
-## 📌 Observação
-As imagens foram padronizadas em um tamanho uniforme (**260px**) e centralizadas para melhorar a estética e apresentação.
-
----
