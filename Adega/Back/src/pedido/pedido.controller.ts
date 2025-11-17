@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body } from '@nestjs/common';
 import { PedidoService } from './pedido.service';
 import { Pedido } from './pedido.entity';
 import { CreatePedidoComItensDto } from './dto/create-pedido-com-itens.dto';
@@ -13,4 +13,10 @@ export class PedidoController {
   ): Promise<Pedido> {
     return this.pedidoService.criar(createPedidoDto);
   }
+
+  @Get()
+  listarTodos() {
+    return this.pedidoService.listarTodos();
+  }
+
 }

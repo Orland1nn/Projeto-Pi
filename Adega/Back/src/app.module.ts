@@ -1,29 +1,53 @@
 import { Module, Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { TypeOrmModule, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { ProdutoModule } from './produto/produto.module';
 import { SecaoModule } from './secao/secao.module';
 import { UsersModule } from './usuario/usuario.module';
 import { PedidoModule } from './pedido/pedido.module';
+import { Secao } from './secao/secao.entity';
 
 @Injectable()
-class DatabaseMonitor implements OnModuleInit {
+export class DatabaseMonitor implements OnModuleInit {
   private readonly logger = new Logger('Database');
 
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+
+    @InjectRepository(Secao)
+    private readonly secaoRepository: Repository<Secao>,
+  ) {}
 
   async onModuleInit() {
-    // If already initialized, just log. Otherwise wait for initialization.
     try {
-      if (this.dataSource.isInitialized) {
-        this.logger.log('✅ Conectado ao banco de dados com sucesso!');
-      } else {
+      if (!this.dataSource.isInitialized) {
         await this.dataSource.initialize();
-        this.logger.log('✅ Conectado ao banco de dados com sucesso!');
       }
+
+      this.logger.log('✅ Conectado ao banco de dados!');
+
+      // 🔍 Verificar se tabela "secoes" está vazia
+      const count = await this.secaoRepository.count();
+
+      if (count === 0) {
+        this.logger.warn('⚠️ Tabela "secoes" vazia. Inserindo valores padrão...');
+
+        await this.secaoRepository.insert([
+          { nome: 'Vinhos' },
+          { nome: 'Cervejas' },
+          { nome: 'Whisky' },
+          { nome: 'Vodkas' },
+          { nome: 'Energéticos' },
+        ]);
+
+        this.logger.log('✅ Tabela "secoes" populada com valores iniciais!');
+      } else {
+        this.logger.log(`📦 A tabela "secoes" possui ${count} registro(s).`);
+      }
+
     } catch (err) {
-      this.logger.error('❌ Falha ao conectar ao banco de dados', err as any);
+      this.logger.error('❌ Erro ao iniciar conexão com DB', err as any);
     }
   }
 }
@@ -38,7 +62,7 @@ class DatabaseMonitor implements OnModuleInit {
     // Configura conexão com o banco usando variáveis do .env
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
-        /*type: 'postgres',
+        type: 'postgres',
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT ?? '5432', 10),
         username: process.env.DB_USERNAME,
@@ -46,8 +70,9 @@ class DatabaseMonitor implements OnModuleInit {
         database: process.env.DB_NAME,
         autoLoadEntities: true,
         synchronize: true,
-        logging: true, */
+        logging: true, 
 
+        /*
         type: 'postgres',
         host: '127.0.0.1',
         port: 5432,
@@ -56,7 +81,7 @@ class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,
+        logging: true,*/
 
         /*type: 'postgres',
         host: '127.0.0.1',

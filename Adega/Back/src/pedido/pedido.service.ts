@@ -71,4 +71,18 @@ export class PedidoService {
 
     return this.pedidoRepository.save(pedido);
   }
+
+  async listarTodos(): Promise<Pedido[]> {
+  return this.pedidoRepository.find({
+    relations: {
+      itens: {
+        produto: true,
+      },
+    },
+    order: {
+      id: 'DESC',
+    },
+  });
+}
+
 }
