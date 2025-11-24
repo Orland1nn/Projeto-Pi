@@ -36,7 +36,7 @@ Abaixo, os membros da equipe e suas respectivas áreas de atuação no projeto.
 
 ---
 
-### 🟨 Orlando Silva — *Frontend*
+### 🟨 Orlando Junior — *Frontend*
 <div align="center">
   <img src="https://github.com/user-attachments/assets/8b105f01-9a4c-4d66-92df-b213a695c6fd" width="260" style="border-radius: 12px;" />
   <br/>
