@@ -1,6 +1,9 @@
+"use client";
+
 import { ReactNode, useEffect, useState } from "react";
 import { Package, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import LogoutButton from "@/Components/LogoutButton";
 
 interface HeaderProps {
   children: ReactNode;
@@ -8,27 +11,17 @@ interface HeaderProps {
 
 export default function Header({ children }: HeaderProps) {
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false); // indica que o client está pronto
+  const [logado, setLogado] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    const token = localStorage.getItem("email");
 
-  useEffect(() => {
-    if (!isMounted) return; // só verifica depois que o client montou
-    const token = localStorage.getItem("token");
     if (!token) {
-      router.replace("/Login");
+      router.push("/Login");
+    } else {
+      setLogado(true);
     }
-  }, [isMounted, router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("email");
-    router.replace("/Login");
-  };
-
-  if (!isMounted) return null; // evita renderizar antes da checagem
+  }, []);
 
   return (
     <div className="w-screen h-screen flex flex-col">
@@ -55,7 +48,7 @@ export default function Header({ children }: HeaderProps) {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/InterfacePrincipal/Produtos")}
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
               >
                 Produtos
               </button>
@@ -64,16 +57,22 @@ export default function Header({ children }: HeaderProps) {
                 onClick={() =>
                   router.push("/InterfacePrincipal/GerenciarProdutos")
                 }
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
               >
                 Gerenciar
               </button>
 
               <button
                 onClick={() => router.push("/InterfacePrincipal/Pedidos")}
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
               >
                 Pedidos
+              </button>
+              <button
+                onClick={() => router.push("/InterfacePrincipal/Carrinho")}
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
+              >
+                Carrinho
               </button>
             </div>
 
@@ -86,18 +85,30 @@ export default function Header({ children }: HeaderProps) {
                 <span className="text-sm">Bem-vindo(a)</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </div>
+              {!logado ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
+                    onClick={() => router.push("/Login")}
+                  >
+                    Login
+                  </button>
+
+                  <button
+                    className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
+                    onClick={() => router.push("/")}
+                  >
+                    Cadastrar
+                  </button>
+                </div>
+              ) : (
+                <LogoutButton onLogout={() => setLogado(false)} />
+              )}
             </div>
           </div>
         </div>
       </header>
+
       {children}
     </div>
   );
