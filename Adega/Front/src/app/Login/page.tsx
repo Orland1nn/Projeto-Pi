@@ -28,7 +28,11 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        router.push("/InterfacePrincipal");
+        // Salva token e email
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("email", email);
+
+        router.replace("/InterfacePrincipal");
       } else {
         setErro(data.message || "Credenciais inválidas!");
       }
@@ -41,12 +45,11 @@ export default function Login() {
   const handleCadastrar = () => router.push("/");
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
       <main className="bg-white w-full max-w-md rounded-2xl shadow-lg p-8 flex flex-col items-center">
         <h1 className="font-extrabold text-3xl text-gray-900">Login</h1>
         <div className="w-16 h-1 bg-green-500 rounded-full my-3"></div>
 
-        {/* FORM */}
         <form
           onSubmit={handleLogin}
           className="w-full flex flex-col items-center"

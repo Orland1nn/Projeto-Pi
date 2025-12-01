@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Package, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -8,17 +8,37 @@ interface HeaderProps {
 
 export default function Header({ children }: HeaderProps) {
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false); // indica que o client está pronto
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return; // só verifica depois que o client montou
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.replace("/Login");
+    }
+  }, [isMounted, router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    router.replace("/Login");
+  };
+
+  if (!isMounted) return null; // evita renderizar antes da checagem
+
   return (
     <div className="w-screen h-screen flex flex-col">
       <header className="w-full bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            {/* Left side - Logo and Navigation */}
             <div
               className="flex items-center gap-8 cursor-pointer"
               onClick={() => router.push("/InterfacePrincipal")}
             >
-              {/* Logo */}
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-rose-700 rounded-lg flex items-center justify-center">
                   <Package className="w-5 h-5 text-white" />
@@ -31,6 +51,7 @@ export default function Header({ children }: HeaderProps) {
                 </div>
               </div>
             </div>
+
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/InterfacePrincipal/Produtos")}
@@ -56,7 +77,6 @@ export default function Header({ children }: HeaderProps) {
               </button>
             </div>
 
-            {/* Right side - User section */}
             <div className="flex items-center gap-4">
               <div
                 className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-amber-600"
@@ -68,16 +88,10 @@ export default function Header({ children }: HeaderProps) {
 
               <div className="flex items-center gap-2">
                 <button
-                  className="px-3 py-1.5 text-sm text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
-                  onClick={() => router.push("/Login")}
-                >
-                  Login
-                </button>
-                <button
                   className="px-3 py-1.5 bg-rose-600 text-white text-sm rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
-                  onClick={() => router.push("/")}
+                  onClick={handleLogout}
                 >
-                  Cadastrar
+                  Logout
                 </button>
               </div>
             </div>

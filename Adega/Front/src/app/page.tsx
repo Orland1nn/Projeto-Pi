@@ -66,6 +66,8 @@ export default function HomePage() {
 
       console.log("Resposta da API:", result);
 
+      localStorage.setItem("email", formData.email);
+
       setFormData({ nome: "", email: "", senha: "" });
 
       router.push("/InterfacePrincipal");

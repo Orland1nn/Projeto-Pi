@@ -31,7 +31,9 @@ export class DatabaseMonitor implements OnModuleInit {
       const count = await this.secaoRepository.count();
 
       if (count === 0) {
-        this.logger.warn('⚠️ Tabela "secoes" vazia. Inserindo valores padrão...');
+        this.logger.warn(
+          '⚠️ Tabela "secoes" vazia. Inserindo valores padrão...',
+        );
 
         await this.secaoRepository.insert([
           { nome: 'Vinhos' },
@@ -45,7 +47,6 @@ export class DatabaseMonitor implements OnModuleInit {
       } else {
         this.logger.log(`📦 A tabela "secoes" possui ${count} registro(s).`);
       }
-
     } catch (err) {
       this.logger.error('❌ Erro ao iniciar conexão com DB', err as any);
     }
@@ -62,6 +63,7 @@ export class DatabaseMonitor implements OnModuleInit {
     // Configura conexão com o banco usando variáveis do .env
     TypeOrmModule.forRootAsync({
       useFactory: async () => ({
+        /*
         type: 'postgres',
         host: process.env.DB_HOST,
         port: parseInt(process.env.DB_PORT ?? '5432', 10),
@@ -70,9 +72,8 @@ export class DatabaseMonitor implements OnModuleInit {
         database: process.env.DB_NAME,
         autoLoadEntities: true,
         synchronize: true,
-        logging: true, 
+        logging: true, */
 
-        /*
         type: 'postgres',
         host: '127.0.0.1',
         port: 5432,
@@ -81,7 +82,7 @@ export class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
-        logging: true,*/
+        logging: true,
 
         /*type: 'postgres',
         host: '127.0.0.1',
