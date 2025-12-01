@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 interface PedidoProps {
   id: number;
   totalItens: number;
@@ -13,8 +17,15 @@ export default function Pedido({
   formaPagamento,
   status,
 }: PedidoProps) {
+  const router = useRouter();
+
   return (
-    <div className="grid grid-cols-5 gap-4 border border-gray-200 p-4 rounded-lg shadow-sm hover:shadow-md transition cursor-pointer text-base font-medium text-gray-800 hover:bg-amber-100">
+    <div
+      onClick={() => router.push(`/InterfacePrincipal/Pedidos/${id}`)}
+      className="grid grid-cols-5 gap-4 border border-gray-200 p-4 rounded-lg shadow-sm 
+                 hover:shadow-md transition cursor-pointer text-base font-medium 
+                 text-gray-800 hover:bg-amber-100"
+    >
       <p>{id}</p>
       <p>{totalItens}</p>
       <p>R$ {precoTotal}</p>
