@@ -92,8 +92,13 @@ export class DatabaseMonitor implements OnModuleInit {
         database: 'postgres',
         autoLoadEntities: true,
         synchronize: true,
+<<<<<<< HEAD
+        logging: true, */
+        
+=======
         logging: true,
         /*
+>>>>>>> 6fd88c00a9a5b2214f4f21f74a1cdd739e985288
         type: 'postgres',
         host: '127.0.0.1',
         port: 5434,
@@ -103,7 +108,7 @@ export class DatabaseMonitor implements OnModuleInit {
         autoLoadEntities: true,
         synchronize: true,
         logging: true,
-        */
+        
       }),
     }),
     ProdutoModule,
