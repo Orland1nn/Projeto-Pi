@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Pedido } from './pedido.entity';
 import { PedidoItem } from './pedido-item.entity';
 import { Produto } from '../produto/produto.entity';
+import { Pagamento } from './pagamento.entity';
 import { CreatePedidoComItensDto } from './dto/create-pedido-com-itens.dto';
 
 @Injectable()
@@ -18,7 +19,10 @@ export class PedidoService {
 
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
-  ) { }
+
+    @InjectRepository(Pagamento)
+    private pagamentoRepository: Repository<Pagamento>,
+  ) {}
 
   async criar(dto: CreatePedidoComItensDto): Promise<Pedido> {
     const pedido = this.pedidoRepository.create({
@@ -32,6 +36,9 @@ export class PedidoService {
     let totalItens = 0;
     const itens: PedidoItem[] = [];
 
+    // -----------------------------
+    // 1) PROCESSAR ITENS
+    // -----------------------------
     for (const itemDto of dto.itens) {
       const produto = await this.produtoRepository.findOne({
         where: { id: itemDto.produtoId },
@@ -69,19 +76,44 @@ export class PedidoService {
     pedido.totalItens = totalItens;
     pedido.itens = itens;
 
+    // -----------------------------
+    // 2) VALIDAR PAGAMENTOS
+    // -----------------------------
+    const somaPagamentos =
+      dto.pagamentos?.reduce((acc, p) => acc + Number(p.valor), 0) ?? 0;
+
+    if (somaPagamentos !== precoTotal) {
+      throw new BadRequestException(
+        `A soma dos pagamentos (${somaPagamentos}) deve ser igual ao total do pedido (${precoTotal}).`,
+      );
+    }
+
+    // -----------------------------
+    // 3) CRIAR PAGAMENTOS
+    // -----------------------------
+    const pagamentos: Pagamento[] = dto.pagamentos.map((pDto) => {
+      const pagamento = new Pagamento();
+      pagamento.tipo = pDto.tipo;
+      pagamento.valor = pDto.valor;
+      pagamento.pedido = pedido;
+      return pagamento;
+    });
+
+    pedido.pagamentos = pagamentos;
+
+    // -----------------------------
+    // 4) SALVAR PEDIDO COMPLETO
+    // -----------------------------
     return this.pedidoRepository.save(pedido);
   }
 
   async listarTodos(): Promise<Pedido[]> {
     return this.pedidoRepository.find({
       relations: {
-        itens: {
-          produto: true,
-        },
+        itens: { produto: true },
+        pagamentos: true,
       },
-      order: {
-        id: 'DESC',
-      },
+      order: { id: 'DESC' },
     });
   }
 
@@ -89,15 +121,15 @@ export class PedidoService {
     const pedido = await this.pedidoRepository.findOne({
       where: { id },
       relations: {
-        itens: {
-          produto: true,
-        },
+        itens: { produto: true },
+        pagamentos: true,
       },
     });
+
     if (!pedido) {
       throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);
     }
+
     return pedido;
   }
-
 }
