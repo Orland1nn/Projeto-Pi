@@ -18,7 +18,7 @@ export class PedidoService {
 
     @InjectRepository(Produto)
     private produtoRepository: Repository<Produto>,
-  ) {}
+  ) { }
 
   async criar(dto: CreatePedidoComItensDto): Promise<Pedido> {
     const pedido = this.pedidoRepository.create({
@@ -73,16 +73,31 @@ export class PedidoService {
   }
 
   async listarTodos(): Promise<Pedido[]> {
-  return this.pedidoRepository.find({
-    relations: {
-      itens: {
-        produto: true,
+    return this.pedidoRepository.find({
+      relations: {
+        itens: {
+          produto: true,
+        },
       },
-    },
-    order: {
-      id: 'DESC',
-    },
-  });
-}
+      order: {
+        id: 'DESC',
+      },
+    });
+  }
+
+  async buscarPorId(id: number): Promise<Pedido> {
+    const pedido = await this.pedidoRepository.findOne({
+      where: { id },
+      relations: {
+        itens: {
+          produto: true,
+        },
+      },
+    });
+    if (!pedido) {
+      throw new NotFoundException(`Pedido com ID ${id} não encontrado.`);
+    }
+    return pedido;
+  }
 
 }

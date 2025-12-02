@@ -1,11 +1,11 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { PedidoService } from './pedido.service';
 import { Pedido } from './pedido.entity';
 import { CreatePedidoComItensDto } from './dto/create-pedido-com-itens.dto';
 
 @Controller('pedidos')
 export class PedidoController {
-  constructor(private readonly pedidoService: PedidoService) {}
+  constructor(private readonly pedidoService: PedidoService) { }
 
   @Post()
   async criar(
@@ -17,6 +17,11 @@ export class PedidoController {
   @Get()
   listarTodos() {
     return this.pedidoService.listarTodos();
+  }
+
+  @Get(':id')
+  async buscarPorId(@Param('id') id: string): Promise<Pedido> {
+    return this.pedidoService.buscarPorId(+id);
   }
 
 }
