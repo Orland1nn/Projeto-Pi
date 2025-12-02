@@ -53,14 +53,18 @@ export class ProdutoController {
     return this.produtoService.listarTop5PorQuantidade();
   }
 
-   @Put('aumentar')
+  @Put('aumentar')
   aumentar(@Body() data: UpdateQuantidadeDto) {
     return this.produtoService.aumentarQuantidade(data);
   }
 
   @Put('diminuir')
   diminuir(@Body() data: UpdateQuantidadeDto) {
-  return this.produtoService.diminuirQuantidade(data);
-}
+    return this.produtoService.diminuirQuantidade(data);
+  }
 
+  @Get(':id')
+  async buscarPorId(@Param('id') id: string): Promise<Produto> {
+    return this.produtoService.buscarPorId(Number(id));
+  }
 }

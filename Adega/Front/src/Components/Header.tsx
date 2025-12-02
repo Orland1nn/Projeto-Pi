@@ -9,25 +9,51 @@ interface HeaderProps {
   children: ReactNode;
 }
 
+interface Usuario {
+  nome: string;
+}
+
 export default function Header({ children }: HeaderProps) {
   const router = useRouter();
   const [logado, setLogado] = useState(false);
+  const [nomeUsuario, setNomeUsuario] = useState<string>("");
 
   useEffect(() => {
-    const token = localStorage.getItem("email");
+    const email = localStorage.getItem("email");
 
-    if (!token) {
+    if (!email) {
       router.push("/Login");
-    } else {
-      setLogado(true);
+      return;
     }
-  }, []);
+
+    setLogado(true);
+
+    const buscarUsuario = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/users/email/${encodeURIComponent(email)}`
+        );
+
+        if (!res.ok) {
+          throw new Error("Usuário não encontrado");
+        }
+
+        const data: Usuario = await res.json();
+        setNomeUsuario(data.nome);
+      } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+      }
+    };
+
+    buscarUsuario();
+  }, [router]);
 
   return (
     <div className="w-screen h-screen flex flex-col">
       <header className="w-full bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
+            {/* LOGO */}
             <div
               className="flex items-center gap-8 cursor-pointer"
               onClick={() => router.push("/InterfacePrincipal")}
@@ -45,10 +71,11 @@ export default function Header({ children }: HeaderProps) {
               </div>
             </div>
 
+            {/* MENU */}
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push("/InterfacePrincipal/Produtos")}
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold cursor-pointer"
               >
                 Produtos
               </button>
@@ -57,17 +84,18 @@ export default function Header({ children }: HeaderProps) {
                 onClick={() =>
                   router.push("/InterfacePrincipal/GerenciarProdutos")
                 }
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold cursor-pointer"
               >
                 Gerenciar
               </button>
 
               <button
                 onClick={() => router.push("/InterfacePrincipal/Pedidos")}
-                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold"
+                className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors font-bold cursor-pointer"
               >
                 Pedidos
               </button>
+
               <button
                 onClick={() => router.push("/InterfacePrincipal/Carrinho")}
                 className="px-4 py-1.5 text-rose-700 text-md rounded-md hover:bg-rose-100 transition-colors cursor-pointer font-bold"
@@ -76,13 +104,13 @@ export default function Header({ children }: HeaderProps) {
               </button>
             </div>
 
+            {/* USER AREA */}
             <div className="flex items-center gap-4">
-              <div
-                className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-amber-600"
-                onClick={() => router.push("/InterfacePrincipal/Usuarios")}
-              >
+              <div className="flex items-center gap-2 text-gray-600 hover:text-amber-600">
                 <Users className="w-4 h-4" />
-                <span className="text-sm">Bem-vindo(a)</span>
+                <span className="text-sm">
+                  Bem-vindo(a){nomeUsuario && `, ${nomeUsuario}`}
+                </span>
               </div>
 
               {!logado ? (

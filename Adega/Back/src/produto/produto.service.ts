@@ -6,7 +6,6 @@ import { CreateProdutoDto } from './dto/create-produto.dto';
 import { Secao } from 'src/secao/secao.entity';
 import { UpdateQuantidadeDto } from './dto/update-quantidade.dto';
 
-
 @Injectable()
 export class ProdutoService {
   constructor(
@@ -72,56 +71,61 @@ export class ProdutoService {
   }
 
   async buscarPorNome(nome: string): Promise<Produto> {
-  const produto = await this.produtoRepository.findOne({
-    where: { nome },
-  });
+    const produto = await this.produtoRepository.findOne({
+      where: { nome },
+    });
 
-  if (!produto) {
-    throw new NotFoundException(`Produto com nome "${nome}" não encontrado.`);
-  }
+    if (!produto) {
+      throw new NotFoundException(`Produto com nome "${nome}" não encontrado.`);
+    }
 
-  return produto;
+    return produto;
   }
 
   async listarTop5PorQuantidade(): Promise<Produto[]> {
-  return await this.produtoRepository.find({
-    order: { quantidade: 'DESC' },
-    take: 5,
-  });
+    return await this.produtoRepository.find({
+      order: { quantidade: 'DESC' },
+      take: 5,
+    });
   }
 
   async aumentarQuantidade(data: UpdateQuantidadeDto) {
-  const { id, nome, quantidade } = data;
+    const { id, nome, quantidade } = data;
 
-  const produto = await this.produtoRepository.findOne({
-    where: id ? { id } : { nome },
-  });
+    const produto = await this.produtoRepository.findOne({
+      where: id ? { id } : { nome },
+    });
 
-  if (!produto) {
-    throw new Error('Produto não encontrado');
+    if (!produto) {
+      throw new Error('Produto não encontrado');
+    }
+
+    produto.quantidade += quantidade;
+    return this.produtoRepository.save(produto);
   }
 
-  produto.quantidade += quantidade;
-  return this.produtoRepository.save(produto);
-}
+  async diminuirQuantidade(data: UpdateQuantidadeDto) {
+    const { id, nome, quantidade } = data;
 
-async diminuirQuantidade(data: UpdateQuantidadeDto) {
-  const { id, nome, quantidade } = data;
+    const produto = await this.produtoRepository.findOne({
+      where: id ? { id } : { nome },
+    });
 
-  const produto = await this.produtoRepository.findOne({
-    where: id ? { id } : { nome },
-  });
+    if (!produto) {
+      throw new Error('Produto não encontrado');
+    }
 
-  if (!produto) {
-    throw new Error('Produto não encontrado');
+    if (produto.quantidade < quantidade) {
+      throw new Error('Quantidade insuficiente em estoque');
+    }
+
+    produto.quantidade -= quantidade;
+    return this.produtoRepository.save(produto);
   }
 
-  if (produto.quantidade < quantidade) {
-    throw new Error('Quantidade insuficiente em estoque');
+  async buscarPorId(id: number): Promise<Produto> {
+    const produto = await this.produtoRepository.findOneBy({ id });
+    if (!produto) throw new NotFoundException('Produto não encontrado');
+    return produto;
   }
-
-  produto.quantidade -= quantidade;
-  return this.produtoRepository.save(produto);
-}
-
 }

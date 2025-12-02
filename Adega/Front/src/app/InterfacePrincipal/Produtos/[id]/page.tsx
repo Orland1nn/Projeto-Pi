@@ -2,9 +2,8 @@
 
 import Header from "@/Components/Header";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 const MAX_QUANTIDADE_DISPONIVEL = 999;
 
@@ -25,7 +24,9 @@ export default function PaginaProduto() {
   const [quantidadeAdicionar, setQuantidadeAdicionar] = useState(0);
   const [quantidadeRemover, setQuantidadeRemover] = useState(0);
   const [carregando, setCarregando] = useState(false);
+  const [mensagemErro, setMensagemErro] = useState(""); // ← nova state
 
+  // Buscar produto pelo nome
   useEffect(() => {
     if (!nomeProduto) return;
 
@@ -58,6 +59,7 @@ export default function PaginaProduto() {
     );
   }
 
+  // Adicionar quantidade ao estoque
   const handleConfirmarAdicionar = async () => {
     if (quantidadeAdicionar <= 0) return;
     setCarregando(true);
@@ -82,6 +84,7 @@ export default function PaginaProduto() {
     }
   };
 
+  // Remover quantidade do estoque
   const handleConfirmarRemover = async () => {
     if (quantidadeRemover <= 0) return;
     setCarregando(true);
@@ -103,8 +106,50 @@ export default function PaginaProduto() {
     }
   };
 
-  const handleAdicionarAoPedido = () => {
-    alert(`🛒 ${produto.nome} adicionado ao pedido!`);
+  const handleAdicionarAoPedido = async () => {
+    if (!produto || produto.quantidade < 1) {
+      setMensagemErro("Produto indisponível!"); // ← mensagem em vermelho
+      return;
+    }
+
+    setCarregando(true);
+    setMensagemErro(""); // limpa mensagem de erro
+    try {
+      const response = await fetch(
+        `http://localhost:3000/cart/add/${produto.id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ quantidade: 1 }),
+        }
+      );
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
+
+      if (!response.ok) {
+        console.error("Erro do backend:", response.status, data);
+        throw new Error(
+          data?.message ||
+            `Erro ao adicionar ao pedido (status ${response.status})`
+        );
+      }
+
+      setProduto(
+        (prev) => prev && { ...prev, quantidade: prev.quantidade - 1 }
+      );
+
+      router.push("/InterfacePrincipal/Carrinho");
+    } catch (error: any) {
+      console.error(error);
+      setMensagemErro(`❌ ${error.message}`);
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
@@ -131,7 +176,6 @@ export default function PaginaProduto() {
             <p className="text-xl font-semibold text-rose-700">
               R$ {produto.preco}
             </p>
-
             <p className="text-gray-600">
               Quantidade disponível:{" "}
               <span className="font-semibold">{produto.quantidade}</span>
@@ -199,22 +243,20 @@ export default function PaginaProduto() {
               </div>
             </div>
 
-             <button
-              onClick={() => {
+            <button
+              onClick={() =>
                 router.push(
                   `/InterfacePrincipal/Vendas/${produto.id}?` +
                     `nome=${encodeURIComponent(produto.nome)}` +
                     `&preco=${encodeURIComponent(produto.preco)}` +
                     `&imagem=${encodeURIComponent(produto.imagem)}` +
                     `&quantidade=${produto.quantidade}`
-                );
-              }}
+                )
+              }
               className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-3 rounded-lg transition shadow-md mt-2 text-sm"
             >
               Vender produto
             </button>
-
-     
 
             <button
               onClick={handleAdicionarAoPedido}
@@ -229,6 +271,12 @@ export default function PaginaProduto() {
             >
               ← Voltar para produtos
             </button>
+
+            {mensagemErro && (
+              <p className="text-red-600 text-sm mt-2 font-semibold">
+                {mensagemErro}
+              </p>
+            )}
           </div>
         </section>
       </div>

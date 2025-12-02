@@ -45,7 +45,7 @@ export default function Pedidos() {
 
   return (
     <Header>
-      <div className="h-full bg-white">
+      <div className="h-full bg-white overflow-hidden">
         <main className="flex flex-row h-full">
           <aside className="w-1/8 h-full border-r border-gray-300 cursor-pointer flex justify-center">
             <ul className="text-rose-700 w-full font-bold">
@@ -58,7 +58,7 @@ export default function Pedidos() {
             </ul>
           </aside>
 
-          <section className="flex flex-col flex-1 p-6">
+          <section className="flex flex-col flex-1 p-6 overflow-auto">
             <header className="grid grid-cols-5 gap-4 mb-4 border-b border-gray-200 pb-2">
               <p className="text-base font-bold text-amber-700">Pedido</p>
               <p className="text-base font-bold text-amber-700">Itens</p>
@@ -67,7 +67,7 @@ export default function Pedidos() {
               <p className="text-base font-bold text-amber-700">Status</p>
             </header>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-150px)]">
               {loading && <p>Carregando pedidos...</p>}
               {erro && <p className="text-red-500">{erro}</p>}
               {!loading && pedidos.length === 0 && (

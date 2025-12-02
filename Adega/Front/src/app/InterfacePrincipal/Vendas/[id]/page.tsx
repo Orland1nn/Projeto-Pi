@@ -36,7 +36,6 @@ export default function PaginaVenda() {
   const [valorPix, setValorPix] = useState(0);
   const [valorCartao, setValorCartao] = useState(0);
 
-  // === BUSCA ESTOQUE ===
   useEffect(() => {
     async function buscarEstoque() {
       if (!nome) return;
@@ -55,16 +54,13 @@ export default function PaginaVenda() {
     buscarEstoque();
   }, [nome]);
 
-  // === RE-CÁLCULO DO TOTAL QUANDO MUDA A QUANTIDADE ===
   useEffect(() => {
     setTotal(preco * quantidadeSelecionada);
 
-    // ajuste automático (OPÇÃO A)
     setValorPix(0);
     setValorCartao(0);
   }, [quantidadeSelecionada]);
 
-  // === ALTERAR QUANTIDADE ===
   function alterarQuantidade(value: string) {
     const novaQuantidade = Number(value);
 
